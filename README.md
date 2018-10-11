@@ -1,5 +1,6 @@
-# mws-restaurant-stage-2a
- - JSON data driven New York City (NYC) restaurant review website.
+# mws-restaurant-stage-3a
+
+- JSON data driven New York City (NYC) restaurant review website.
 
 - Shows interactive street map of 10 restaurants located with NYC's 5 boroughs.
 
@@ -49,53 +50,62 @@ You can audit your site's performance with Lighthouse by using the Audit tab of 
 
 #### JavaScript
 
-* Progessive Web App (PWA)
-* Service Worker
-* Indexed DB (IDB)
-* Fetch API
-* Cache API
-* JSON REST API
-* Sails.js Server
-* node
-* npm
+- Progressive Web App (PWA)
+- Service Worker
+- Indexed DB (IDB with Promises)
+- Fetch API
+- Cache API
+- JSON REST API
+- Sails.js Server
+- node
+- npm
 
 #### HTML
-* Responsive Images
-* HTML5 Landmarks
-* ARIA A11y web accessibility
+
+- Responsive Images
+- HTML5 Landmarks
+- ARIA A11y web accessibility
 
 #### CSS
 
-* Responsive Web Design (RWD)
-* Cross Browser Testing
-* Live Editing
+- Responsive Web Design (RWD)
+- Cross Browser Testing
+- Live Editing
 
 #### Build Tools
 
-* Grunt
-* Gulp
-* Yeoman Web App Generator
-* Bower Components
-* [Lighthouse Web Auditing](https://developers.google.com/web/tools/lighthouse/)
-* ES6 / JavaScript 2015 Module bundling
-* Chrome DevTools
-* VS Code
-* Web Server Live Reloading
-* ES6 / JavaScript 2015 Transpiling
-* JavaScript Source Maps
-* JavaScript Linting
-* File Minification
-* File Uglification
-* git
-* github.com
-* Cmder
+- Grunt
+- Gulp
+- Yeoman Web App Generator
+- Bower Components
+- [Lighthouse Web Auditing](https://developers.google.com/web/tools/lighthouse/)
+- ES6 / JavaScript 2015 Module bundling
+- Chrome DevTools
+- VS Code
+- Web Server Live Reloading
+- ES6 / JavaScript 2015 Transpiling
+- JavaScript Source Maps
+- JavaScript Linting
+- File Minification
+- File Uglification
+- git
+- github.com
+- Cmder
 
 #### Style Guide Compliance
 
-* [HTML](http://udacity.github.io/frontend-nanodegree-styleguide/index.html)
-* [CSS](http://udacity.github.io/frontend-nanodegree-styleguide/css.html)
-* [JavaScript](http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html)
-* [Git](https://udacity.github.io/git-styleguide/)
+- [HTML](http://udacity.github.io/frontend-nanodegree-styleguide/index.html)
+- [CSS](http://udacity.github.io/frontend-nanodegree-styleguide/css.html)
+- [JavaScript](http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html)
+- [Git](https://udacity.github.io/git-styleguide/)
+- [JsDoc3](http://usejsdoc.org/)
+
+#### Testing
+
+- JavaScript Unit Testing 
+- JSON API Endpoint Testing
+- JavaScript Profiling
+- Web Performance testing
 
 ***[Back to top](#table-of-contents)***
 
@@ -107,7 +117,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them
 
-```
+```sh
 node
 npm
 git
@@ -117,35 +127,47 @@ git
 Refer to /package.json
 
 ### Development Setup
+
 ```sh
 npm install
 bower install
 gulp serve
 ```
+
 ### Local Development API Server
+
 1. [Fork and clone the server repository](https://github.com/udacity/mws-restaurant-stage-2). You’ll use this development server to develop your project code.
 1. Change the data source for your restaurant requests to pull JSON from the server, parse the response and use the response to generate the site UI.
 1. Cache the JSON responses for offline use by using the IndexedDB API.
 
 #### Get Restaurants
-```
+
+```sh
 curl "http://localhost:1337/restaurants"
 ```
+
 #### Get Restaurants by id
-````
+
+````sh
 curl "http://localhost:1337/restaurants/{3}"
 ````
+
 #### Architecture
 Local server
+
 - Node.js
 - Sails.js
 
 #### Usage
+
 ##### Start the server
-```Start server
+
+```sh
 # node server
 ```
+
 ##### You should now have access to your API server environment
+
 debug: Environment : development
 
 debug: Port        : 1337
@@ -156,10 +178,10 @@ debug: Port        : 1337
 
 For list of the changes and updates, see the [commits on this repository](https://github.com/anthonyalvarez/mws-restaurant-stage-2a/commits).
 
-* 0.0.1
-    * Work in  Need to populate Local Indexed DB with Remote JSON API server using fetch API.
+- 0.0.1
 
-***[Back to top](#table-of-contents)***
+- Pull reviews data from new remote JSON API server endpoint
+
 
 ## Contributing
 
@@ -169,14 +191,13 @@ For list of the changes and updates, see the [commits on this repository](https:
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
 
-**[Back to top](#table-of-contents)**
-
 ## License
+
 Open source
 
-**[Back to top](#table-of-contents)**
 
 ## Contact
+
 If you find a bug in the source code or a mistake in the documentation, you can help us by
 submitting an issue to [GitHub](https://github.com/anthonyalvarez/mws-restaurant-stage-2a/issues). Even better you can submit a Pull Request with a fix :)
 
