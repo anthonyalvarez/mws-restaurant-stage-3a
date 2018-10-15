@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     fetchNeighborhoods();
     fetchCuisines();
     DBHelper.addRestaurantsIdb();
+    DBHelper.addReviewsIdb();
 });
 
 /**

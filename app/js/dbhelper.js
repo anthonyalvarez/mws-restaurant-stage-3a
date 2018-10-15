@@ -5,13 +5,15 @@ var CONSOLE_LOG_ID = '[DB-HELPER]';
 
 // import idb from 'idb';
 
-const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
+const dbPromise = idb.open('udacity-mws', 2, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
       upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+      const reviewStorage = upgradeDB. createObjectStore('reviews', {keyPath: 'id'});
+      // reviewStorage.createIndex('restaurant_id', 'restaurant_id');
       break;
-  }
-});
+    }
+  });
 
 
 class DBHelper {
@@ -32,6 +34,12 @@ class DBHelper {
 
   }
 
+  static get REMOTE_REVIEWS_DB_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews`;
+
+  }
+
   /**
    * Fetch all restaurants.
    */
@@ -40,11 +48,11 @@ class DBHelper {
     let FUCNTION_DESC = 'fetchRestaurants';
     fetch(DBHelper.REMOTE_DATABASE_URL)
       .then(response => {
-        return response.json(); 
+        return response.json();
       })
       .then(restaurants => {
           console.log(FUCNTION_ID, FUCNTION_DESC, '#1', restaurants);
-          callback(null, restaurants);  
+          callback(null, restaurants);
         })
       .catch (error => {
           console.log(FUCNTION_ID, FUCNTION_DESC, error);
@@ -171,8 +179,11 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
-  }
+    if (restaurant.photograph) {
+      return (`/img/${restaurant.photograph}`);
+    }
+    return `/img/${restaurant.id}`;
+    }
 
   /**
    * Map marker for a restaurant.
@@ -193,7 +204,7 @@ class DBHelper {
     // Put data into an array or object
     fetch(DBHelper.REMOTE_DATABASE_URL).then(response => {return response.json(); }).then(restaurants => {
       console.trace('[addRestaurantsIdb Trace]', restaurants);
-       dbPromise.then(function(db) {
+        dbPromise.then(function(db) {
         var transaction = db.transaction('restaurants', 'readwrite');
         var objstore = transaction.objectStore('restaurants');
         for ( let i = 0; i < restaurants.length; i++) {
@@ -205,14 +216,26 @@ class DBHelper {
     .catch (error => {
       console.trace('[addRestaurantsIdb Trace Error]', error);
     });
-
-/*     var remoteData = restaurants;
-    console.log('[remoteData]', remoteData);
-    console.log('[remoteData]', restaurants);
- */
-    // Create transaction
-    // go through data and place in IDB
   }
+
+static addReviewsIdb() {
+  // Fetch data from remote server
+  // Put data into an array or object
+  fetch(DBHelper.REMOTE_REVIEWS_DB_URL).then(response => {return response.json(); }).then(reviews => {
+    console.trace('[addReviewsIdb Trace]', reviews);
+      dbPromise.then(function(db) {
+      const tx = db.transaction('reviews', 'readwrite');
+      const myStorage = tx.objectStore('reviews');
+      for ( let i = 0; i < reviews.length; i++) {
+        myStorage.put(reviews[i]);
+    }
+      return tx.complete;
+    });
+  })
+  .catch (error => {
+    console.trace('[addReviewsIdb Trace Error]', error);
+  });
+}
 
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
