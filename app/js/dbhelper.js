@@ -5,12 +5,12 @@ var CONSOLE_LOG_ID = '[DB-HELPER]';
 
 // import idb from 'idb';
 
-const dbPromise = idb.open('udacity-mws', 2, upgradeDB => {
+const dbPromise = idb.open('udacity-mws', 4, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
       upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
       const reviewStorage = upgradeDB. createObjectStore('reviews', {keyPath: 'id'});
-      // reviewStorage.createIndex('restaurant_id', 'restaurant_id');
+      reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
       break;
     }
   });
@@ -57,7 +57,7 @@ class DBHelper {
       .catch (error => {
           console.log(FUCNTION_ID, FUCNTION_DESC, error);
         });
-      console.log(FUCNTION_ID, FUCNTION_DESC,'#2', restaurants);
+      console.log(FUCNTION_ID, FUCNTION_DESC,'#2', 'restaurants');
   }
 
   /**
@@ -78,6 +78,20 @@ class DBHelper {
       }
     });
   }
+
+  /**
+   * @params - Three (3): database name, object store name
+   * @returns -  none
+   * @description - Read Data
+   */
+
+  static fetchReviewsByResturantId(id, callback) {
+    dbPromise.then (function(db){
+      var tx = db.transaction(['reviews'], 'readonly');
+      var store = tx.objectStore('reviews');
+      return store.get('(id');
+    });
+  } 
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -219,9 +233,14 @@ class DBHelper {
   }
 
 static addReviewsIdb() {
+  // debugger;
   // Fetch data from remote server
   // Put data into an array or object
-  fetch(DBHelper.REMOTE_REVIEWS_DB_URL).then(response => {return response.json(); }).then(reviews => {
+  fetch(DBHelper.REMOTE_REVIEWS_DB_URL).then(response => {
+    userReviews =response.json(); 
+    // return response.json(); 
+    return userReviews;
+  }).then(reviews => {
     console.trace('[addReviewsIdb Trace]', reviews);
       dbPromise.then(function(db) {
       const tx = db.transaction('reviews', 'readwrite');

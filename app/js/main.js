@@ -1,6 +1,7 @@
 let restaurants,
-  neighborhoods,
-  cuisines;
+    userReviews,
+    neighborhoods,
+    cuisines;
 var newMap;
 var markers = [];
 
