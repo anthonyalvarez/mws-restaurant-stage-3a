@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:9000",
+            "webRoot": "${workspaceFolder}/app/",
+            "skipFiles": [
+                "${workspaceRoot}/node_modules/**/*.js",
+                "${workspaceRoot}/yourLibToSkip/**/*.js",
+                "${workspaceFolder}/app/js/idb.js",
+                "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js",
+                "<node_internals>/**/*.js",
+                "${workspaceRoot}/node_modules/browser-sync/*.js"
+            ]
+        }
+    ]
+}
