@@ -1,4 +1,5 @@
-let restaurant;
+let restaurant, userComments;
+let remoteURL = 'http://localhost:1337/reviews?restaurant_id=';
 var newMap;
 
 /**
@@ -116,8 +117,18 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
       fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
+
+  fetch(remoteURL + self.restaurant.id)
+    .then(response => response.json())
+    .then(json =>{
+      console.log(json);
+      userComments = json;
+      self.restaurant.reviews =userComments;
+    })
+    .then( () => fillReviewsHTML())
+    .catch(function(error){
+      console.log('Fetch failed',error);
+    });
 };
 
 /**
@@ -150,22 +161,24 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * @returns {object} title - prints out using createReviewHTML or prints "no reviews"
  * @returns {object} noReviews - prints "no reviews"
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+   console.log('fillReviewsHTML');
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
+  if (!self.restaurant.reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
     container.appendChild(noReviews);
     return;
   }
   const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
   });
+
   container.appendChild(ul);
 };
 
@@ -184,7 +197,7 @@ createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  date.innerHTML = review.createdAt;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -228,9 +241,3 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
-
-/*
-TODO:
-1. Use of Conditional Ternary Operator. Search keyword "return"
-2. Use of && and || operators
-*/
