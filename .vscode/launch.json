@@ -14,6 +14,8 @@
                 "${workspaceRoot}/node_modules/**/*.js",
                 "${workspaceRoot}/yourLibToSkip/**/*.js",
                 "${workspaceFolder}/app/js/idb.js",
+                "${workspaceFolder}/app/serviceworker.js",
+                "${workspaceFolder}/app/sw.js",
                 "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js",
                 "<node_internals>/**/*.js",
                 "${workspaceRoot}/node_modules/browser-sync/*.js"
