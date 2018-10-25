@@ -4,6 +4,8 @@ let restaurants,
     cuisines;
 var newMap;
 var markers = [];
+const ICON_FAVORITE = '♥';
+const ICON_NOT_FAVORITE = '♡';
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -167,10 +169,19 @@ resetRestaurants = (restaurants) => {
  * @returns {object} none - updates DOM element
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
+
   const ul = document.getElementById('restaurants-list');
+
+  restaurants.forEach(restaurant => {
+    if (!restaurant.is_favorite) {
+      restaurant.favIcon = ICON_NOT_FAVORITE;
+    } else restaurant.favIcon = ICON_FAVORITE;
+  });
+
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
+
   addMarkersToMap();
 };
 
@@ -197,7 +208,7 @@ createRestaurantHTML = (restaurant) => {
   li.append(image);
 
   const name = document.createElement('h2');
-  name.innerHTML = restaurant.name;
+  name.innerHTML = restaurant.name + '  ' + restaurant.favIcon;
   li.append(name);
 
   const neighborhood = document.createElement('p');

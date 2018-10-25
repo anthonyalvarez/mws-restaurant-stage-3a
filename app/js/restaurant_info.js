@@ -1,6 +1,8 @@
 let restaurant, userComments;
 let remoteURL = 'http://localhost:1337/reviews?restaurant_id=';
 var newMap;
+const ICON_FAVORITE = '♥';
+const ICON_NOT_FAVORITE = '♡';
 
 /**
  * Initialize map as soon as the page is loaded.
@@ -74,11 +76,13 @@ fetchRestaurantFromURL = (callback) => {
         console.error(error);
         return;
       }
+      isFavoriteRestaurant();
       fillRestaurantHTML();
       callback(null, restaurant);
     });
   }
 };
+
 
 /**
  * Create restaurant HTML and add it to the webpage
@@ -90,7 +94,7 @@ fetchRestaurantFromURL = (callback) => {
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
+  name.innerHTML = restaurant.name + '  ' + self.restaurant.favIcon;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -242,3 +246,11 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+
+function isFavoriteRestaurant(){
+
+  if (!self.restaurant.isFavorite) {
+    self.restaurant.favIcon = ICON_NOT_FAVORITE;
+  } else self.restaurant.favIcon = ICON_FAVORITE;
+
+}
