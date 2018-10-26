@@ -4,8 +4,6 @@ let restaurants,
     cuisines;
 var newMap;
 var markers = [];
-const ICON_FAVORITE = '♥';
-const ICON_NOT_FAVORITE = '♡';
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -171,13 +169,7 @@ resetRestaurants = (restaurants) => {
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
 
   const ul = document.getElementById('restaurants-list');
-
-  restaurants.forEach(restaurant => {
-    if (!restaurant.is_favorite) {
-      restaurant.favIcon = ICON_NOT_FAVORITE;
-    } else restaurant.favIcon = ICON_FAVORITE;
-  });
-
+  
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
@@ -206,9 +198,25 @@ createRestaurantHTML = (restaurant) => {
   image.setAttribute('srcset', sourceSet);
   image.alt = restaurant.name;
   li.append(image);
+ 
+  let favoriteMessage = ''; 
+  let favoriteStatus = '';
 
+  if (restaurant.is_favorite == false || restaurant.is_favorite == 'false' || restaurant.is_favorite == undefined ) {
+    favoriteStatus = 'Not a Favorite';
+    const ICON_NOT_FAVORITE = '&#x2661';
+    restaurant.favIcon = ICON_NOT_FAVORITE;
+  } else {
+    favoriteStatus = 'Is a Favorite';
+    const ICON_FAVORITE = '&#x1F9E1';
+    restaurant.favIcon = ICON_FAVORITE;
+  }
+  
+  favoriteMessage = favoriteStatus + restaurant.favIcon;
+  
   const name = document.createElement('h2');
-  name.innerHTML = restaurant.name + '  ' + restaurant.favIcon;
+
+  name.innerHTML = restaurant.name + ', ' + favoriteMessage;
   li.append(name);
 
   const neighborhood = document.createElement('p');

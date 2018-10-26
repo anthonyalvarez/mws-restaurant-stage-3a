@@ -1,8 +1,6 @@
 let restaurant, userComments;
 let remoteURL = 'http://localhost:1337/reviews?restaurant_id=';
 var newMap;
-const ICON_FAVORITE = '♥';
-const ICON_NOT_FAVORITE = '♡';
 
 /**
  * Initialize map as soon as the page is loaded.
@@ -76,7 +74,6 @@ fetchRestaurantFromURL = (callback) => {
         console.error(error);
         return;
       }
-      isFavoriteRestaurant();
       fillRestaurantHTML();
       callback(null, restaurant);
     });
@@ -94,7 +91,21 @@ fetchRestaurantFromURL = (callback) => {
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name + '  ' + self.restaurant.favIcon;
+  let favoriteStatus;
+
+  console.log('fillRestaurantHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
+
+  if (self.restaurant.is_favorite == false || self.restaurant.is_favorite == 'false' || self.restaurant.is_favorite == undefined ) {
+    favoriteStatus = 'Not a Favorite';
+    const ICON_NOT_FAVORITE = '&#x2661';
+    self.restaurant.favIcon = ICON_NOT_FAVORITE;
+  } else {
+    favoriteStatus = 'Is a Favorite';
+    const ICON_FAVORITE = '&#x1F9E1';
+    self.restaurant.favIcon = ICON_FAVORITE;
+  }
+  const favoriteMessage = favoriteStatus + self.restaurant.favIcon
+  name.innerHTML = restaurant.name + ', ' + favoriteMessage;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -246,11 +257,3 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
-
-function isFavoriteRestaurant(){
-
-  if (!self.restaurant.isFavorite) {
-    self.restaurant.favIcon = ICON_NOT_FAVORITE;
-  } else self.restaurant.favIcon = ICON_FAVORITE;
-
-}
