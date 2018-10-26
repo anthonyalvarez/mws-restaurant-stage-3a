@@ -169,7 +169,7 @@ resetRestaurants = (restaurants) => {
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
 
   const ul = document.getElementById('restaurants-list');
-  
+
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
@@ -198,9 +198,9 @@ createRestaurantHTML = (restaurant) => {
   image.setAttribute('srcset', sourceSet);
   image.alt = restaurant.name;
   li.append(image);
- 
-  let favoriteMessage = ''; 
+
   let favoriteStatus = '';
+  const SPACER = ' ';
 
   if (restaurant.is_favorite == false || restaurant.is_favorite == 'false' || restaurant.is_favorite == undefined ) {
     favoriteStatus = 'Not a Favorite';
@@ -211,12 +211,12 @@ createRestaurantHTML = (restaurant) => {
     const ICON_FAVORITE = '&#x1F9E1';
     restaurant.favIcon = ICON_FAVORITE;
   }
-  
-  favoriteMessage = favoriteStatus + restaurant.favIcon;
-  
+
+  const FAVORITE_MESSAGE = restaurant.favIcon + SPACER + favoriteStatus;
+
   const name = document.createElement('h2');
 
-  name.innerHTML = restaurant.name + ', ' + favoriteMessage;
+  name.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
   li.append(name);
 
   const neighborhood = document.createElement('p');

@@ -104,8 +104,10 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     const ICON_FAVORITE = '&#x1F9E1';
     self.restaurant.favIcon = ICON_FAVORITE;
   }
-  const favoriteMessage = favoriteStatus + self.restaurant.favIcon
-  name.innerHTML = restaurant.name + ', ' + favoriteMessage;
+
+  const SPACER = ' ';
+  const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
+  name.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
