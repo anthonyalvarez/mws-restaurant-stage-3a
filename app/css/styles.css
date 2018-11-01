@@ -260,7 +260,7 @@
         width: 50%;
     }
  */    
-    #restaurant-name {
+    #restaurant-name, #form-name {
         color: #f18200;
         font: 200 20pt/1.1 Arial, sans-serif;
         letter-spacing: 0;
@@ -291,7 +291,7 @@
     }
 
     #restaurant-container,
-    #reviews-container {
+    #reviews-container, #form-container {
         border-bottom: 1px solid #d9d9d9;
         border-top: 1px solid #fff;
 /*         padding: 140px 40px 30px;
