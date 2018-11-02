@@ -109,7 +109,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const SPACER = ' ';
   const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
-  buttonElement.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
+  // name.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
+  name.innerHTML = restaurant.name;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
