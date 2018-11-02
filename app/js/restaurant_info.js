@@ -283,6 +283,7 @@ function toggleFavoriteStatus () {
   console.log('Headers', options);
 
   if (buttonState ==='false'){
+    self.restaurant.is_favorite = 'true';
     buttonElement.setAttribute('aria-pressed', true);
     buttonMessage = 'Unfavorite this restaurant ' + ICON_FAVORITE;
     // TODO: Add Put Request to Favorite a restaurant
@@ -301,6 +302,7 @@ function toggleFavoriteStatus () {
       .catch(error => console.log(`Error: ${error}`));
 
   } else {
+    self.restaurant.is_favorite = 'false';
     buttonElement.setAttribute('aria-pressed', false);
     buttonMessage = 'Favorite this restaurant ' + ICON_NOT_FAVORITE;
     // TODO: Add Put Request to UN-Favorite a restaurant
