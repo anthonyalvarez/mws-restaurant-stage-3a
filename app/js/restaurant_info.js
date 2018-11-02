@@ -92,6 +92,8 @@ fetchRestaurantFromURL = (callback) => {
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   let favoriteStatus;
+  const buttonElement = document.getElementById('restaurant-favorite-button');
+
 
   console.log('fillRestaurantHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
 
@@ -107,7 +109,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const SPACER = ' ';
   const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
-  name.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
+  buttonElement.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -259,3 +261,67 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+
+function toggleFavoriteStatus () {
+
+  const ICON_NOT_FAVORITE = '&#x2661';
+  const ICON_FAVORITE = '&#x1F9E1';
+
+  const buttonElement = document.getElementById('restaurant-favorite-button');
+  const buttonState = buttonElement.getAttribute('aria-pressed');
+  let buttonMessage = buttonElement.innerText;
+
+  const RESTAURANT_ID = self.restaurant.id;
+  console.log('RESTAURANT_ID:', RESTAURANT_ID);
+
+  const options = {
+    method: 'PUT',
+    headers: new Headers ({
+      'Content-Type':'application/json'
+    })
+  };
+  console.log('Headers', options);
+
+  if (buttonState ==='false'){
+    buttonElement.setAttribute('aria-pressed', true);
+    buttonMessage = 'Unfavorite this restaurant ' + ICON_FAVORITE;
+    // TODO: Add Put Request to Favorite a restaurant
+    // http://localhost:1337/restaurants/8/?is_favorite=true
+    const queryStr = 'is_favorite=true';
+    const usp = new URLSearchParams(queryStr);
+    const myName = usp.get('is_favorite');
+    console.log('Query String parameter', myName);
+    console.log('Query String values', usp.toString());
+    const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
+    console.log('Endpoint URL', endpoint);
+    const requestFavoriteTrue = new Request(endpoint, options);
+     fetch(requestFavoriteTrue)
+      .then(response => response.json())
+      .then(res => console.log(res))
+      .catch(error => console.log(`Error: ${error}`));
+
+  } else {
+    buttonElement.setAttribute('aria-pressed', false);
+    buttonMessage = 'Favorite this restaurant ' + ICON_NOT_FAVORITE;
+    // TODO: Add Put Request to UN-Favorite a restaurant
+    // http://localhost:1337/restaurants/8/?is_favorite=false
+    const queryStrFalse = 'is_favorite=false';
+    const usp = new URLSearchParams(queryStrFalse);
+    const myName = usp.get('is_favorite');
+    console.log('Query String parameter', myName);
+    console.log('Query String values', usp.toString());
+    const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
+    console.log('Endpoint URL', endpoint);
+    const requestFavoriteFalse = new Request(endpoint, options);
+    fetch(requestFavoriteFalse)
+     .then(response => response.json())
+     .then(res => console.log(res))
+     .catch(error => console.log(`Error: ${error}`));
+
+  }
+  // const currentMessage = buttonElement.innerHTML;
+  buttonElement.innerHTML =  buttonMessage ;
+  console.log('button clicked');
+  console.log('ARIA Pressed Value',buttonState);
+  // put PUT request using FETCH
+}
