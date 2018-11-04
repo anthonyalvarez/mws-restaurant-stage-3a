@@ -91,26 +91,10 @@ fetchRestaurantFromURL = (callback) => {
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  let favoriteStatus;
-  const buttonElement = document.getElementById('restaurant-favorite-button');
-
-
-  console.log('fillRestaurantHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
-
-  if (self.restaurant.is_favorite == false || self.restaurant.is_favorite == 'false' || self.restaurant.is_favorite == undefined ) {
-    favoriteStatus = 'Not a Favorite';
-    const ICON_NOT_FAVORITE = '&#x2661';
-    self.restaurant.favIcon = ICON_NOT_FAVORITE;
-  } else {
-    favoriteStatus = 'Is a Favorite';
-    const ICON_FAVORITE = '&#x1F9E1';
-    self.restaurant.favIcon = ICON_FAVORITE;
-  }
-
-  const SPACER = ' ';
-  const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
-  // name.innerHTML = restaurant.name + ', ' + FAVORITE_MESSAGE;
+  
   name.innerHTML = restaurant.name;
+
+  createFavoriteToggleHTML();
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -138,6 +122,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
       fillRestaurantHoursHTML();
   }
 
+  createReviewFormHTML();
+
   fetch(remoteURL + self.restaurant.id)
     .then(response => response.json())
     .then(json =>{
@@ -149,6 +135,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     .catch(function(error){
       console.log('Fetch failed',error);
     });
+
 };
 
 /**
@@ -327,4 +314,81 @@ function toggleFavoriteStatus () {
   console.log('button clicked');
   console.log('ARIA Pressed Value',buttonState);
   // put PUT request using FETCH
+}
+
+userInputDataReviewForm = () => {
+  DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+    self.restaurant = restaurant;
+    if (!restaurant) {
+      console.error(error);
+      return;
+    }
+    fillRestaurantHTML();
+    callback(null, restaurant);
+  });
+
+
+  console.log('Funtion: userInputDataReviewForm', restaurant);
+  const FORM = document.getElementById('userInputForm');
+  const RESTAURANT_ID = self.restaurant.id;
+  const INPUT_NAME = document.getElementById('name');
+  const INPUT_RATING = document.getElementById('rating');
+  const INPUT_COMMENT = document.getElementById('comments');
+  
+  FORM.addEventListener('submit',(e) => {
+    // e.preventDefault;
+    const DATA_NAME = INPUT_NAME.value;
+    const DATA_RATING = parseInt(INPUT_RATING.value);
+    const DATA_COMMENT = INPUT_COMMENT.value;
+    const DATA_CURRENT_TIME = Math.round(new Date().getTime()/1000.0);
+
+    let  formdata = new FormData();
+    formdata.append('restaurant_id', RESTAURANT_ID);
+    formdata.append('name', DATA_NAME);
+    formdata.append('rating', DATA_RATING);
+    formdata.append('comments', DATA_COMMENT);
+    formdata.append('createdAt', DATA_CURRENT_TIME);
+    formdata.append('updatedAt', DATA_CURRENT_TIME);
+  })
+}
+
+createFavoriteToggleHTML = (restaurant = self.restaurant) => {
+    
+  console.log('Inside createFavoriteToggleHTML');
+
+  const BUTTON = document.getElementById('restaurant-favorite-button');
+
+  BUTTON.onclick = 'toggleFavoriteStatus()';
+  BUTTON.id = 'restaurant-favorite-button';
+  BUTTON.setAttribute('aria-label', '');
+  BUTTON.setAttribute('aria-pressed', 'false');
+  BUTTON.setAttribute('aria-disabled', 'false');
+  BUTTON.style = 'display: block;';
+
+  let favoriteStatus;
+  console.log('createFavoriteToggleHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
+
+  if (self.restaurant.is_favorite == false || self.restaurant.is_favorite == 'false' || self.restaurant.is_favorite == undefined ) {
+    favoriteStatus = 'Not a Favorite';
+    const ICON_NOT_FAVORITE = '&#x2661';
+    self.restaurant.favIcon = ICON_NOT_FAVORITE;
+  } else {
+    favoriteStatus = 'Is a Favorite';
+    const ICON_FAVORITE = '&#x1F9E1';
+    self.restaurant.favIcon = ICON_FAVORITE;
+  }
+
+  const SPACER = ' ';
+  const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
+  BUTTON.innerHTML = FAVORITE_MESSAGE;
+  return;
+}
+
+createReviewFormHTML = (restaurant = self.restaurant) => {
+
+  console.log('Inside createReviewFormHTML()');
+  const FORM = document.getElementById('restaurant-id');
+  FORM.value = parseInt(self.restaurant.id);
+  
+  return;
 }

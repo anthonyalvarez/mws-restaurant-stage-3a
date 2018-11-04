@@ -41,9 +41,10 @@
     <!-- Beginning restaurant -->
     <section id="restaurant-container">
       <h2 id="restaurant-name"></h2>
-      <button style="display: block;" onclick="toggleFavoriteStatus()" id="restaurant-favorite-button" aria-label=""
-        aria-pressed="false" aria-disabled="false">&#x2661
+      <div id="favorite-toggle"></div> 
+      <button id="restaurant-favorite-button" >&#x2661
         Favorite Toggle</button>
+            
       <img id="restaurant-img">
       <p id="restaurant-cuisine"></p>
       <p id="restaurant-address"></p>
@@ -56,28 +57,29 @@
     </section>
     <section id="form-container">
       <h2 id="form-name">Add Your Restaurant Review</h2>
-      <form action="" method="post">
+      <form id="userInputForm" action="http://localhost:1337/reviews/" method="POST">
         <p> Name: <br>
-          <input required type="text" name="name" id="" aria-placeholder="" placeholder="Type in Your Name here">
+          <input required type="text" name="name" id="name" aria-placeholder="" placeholder="Type in Your Name here">
         </p>
-
+        <input type="hidden" aria-hidden="true" name="restaurant_id" id="restaurant-id" value="">
         <p>Rating: <br>
-          1. Bad <input required type="radio" name="rating" id="1">
-          2. OK <input required type="radio" name="rating" id="2">
-          3. Good <input required type="radio" name="rating" id="3">
-          4. Better <input required type="radio" name="rating" id="4">
-          5. Best <input required type="radio" name="rating" id="5">
+          <select required name="rating" id="rating">
+            <option value="1">Bad(1)</option> 
+            <option value="2">OK(2)</option>
+            <option value="3">Good(3)</option>
+            <option value="4">Better(4)</option>
+            <option value="5">Best(5)</option>
+        </select>
         </p>
 
         <p><label for="comments">Comments:</label> <br>
           <textarea required name="comments" id="comments" cols="30" rows="10" placeholder="Add your restaurant review here"></textarea></p>
         <p>
-          <input type="submit" value="Add your Restaurant Review">
+          <input id="add-restaurant-review-button" aria-label="" aria-pressed="false" aria-disabled="false"  type="submit" value="Add your Restaurant Review">
         </p>
 
 
       </form>
-      <a id="submit-review-button"></a>
     </section>
     <!-- End reviews -->
   </main>
