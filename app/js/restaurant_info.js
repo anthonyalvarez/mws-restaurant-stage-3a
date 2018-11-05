@@ -358,8 +358,8 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
 
   const BUTTON = document.getElementById('restaurant-favorite-button');
 
-  BUTTON.onclick = 'toggleFavoriteStatus()';
-  BUTTON.id = 'restaurant-favorite-button';
+  BUTTON.setAttribute('onclick', 'toggleFavoriteStatus()');
+  // BUTTON.id = 'restaurant-favorite-button';
   BUTTON.setAttribute('aria-label', '');
   BUTTON.setAttribute('aria-pressed', 'false');
   BUTTON.setAttribute('aria-disabled', 'false');
