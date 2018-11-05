@@ -1,9 +1,8 @@
 var CONSOLE_LOG_ID = '[DB-HELPER]';
+
 /**
  * Common database helper functions.
  */
-
-// import idb from 'idb';
 
 const dbPromise = idb.open('udacity-mws', 4, upgradeDB => {
   switch (upgradeDB.oldVersion) {
@@ -18,17 +17,7 @@ const dbPromise = idb.open('udacity-mws', 4, upgradeDB => {
 
 class DBHelper {
 
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
-  static get DATABASE_URL() {
-    const port = 9000; // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
-
-  }
-
-  static get REMOTE_DATABASE_URL() {
+   static get REMOTE_DATABASE_URL() {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
 
@@ -89,7 +78,7 @@ class DBHelper {
     dbPromise.then (function(db){
       var tx = db.transaction(['reviews'], 'readonly');
       var store = tx.objectStore('reviews');
-      return store.get('(id');
+      return store.get('id');
     });
   } 
 
@@ -256,17 +245,7 @@ static addReviewsIdb() {
   });
 }
 
-  /* static mapMarkerForRestaurant(restaurant, map) {
-    const marker = new google.maps.Marker({
-      position: restaurant.latlng,
-      title: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant),
-      map: map,
-      animation: google.maps.Animation.DROP}
-    );
-    return marker;
-  } */
+
 }
-/* TODO: check for Conditional Ternary Operator http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html#ternary-operator */
 
 /* TODO: Use comments to explain code: What does it cover, what purpose does it serve, and why is the respective solution used or preferred? Try JSDoc. */
