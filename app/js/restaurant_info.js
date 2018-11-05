@@ -375,7 +375,7 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
 
   BUTTON.setAttribute('onclick', 'toggleFavoriteStatus()');
   // BUTTON.id = 'restaurant-favorite-button';
-  BUTTON.setAttribute('aria-label', '');
+  BUTTON.setAttribute('aria-label', `${self.restaurant.name} is a favorite? ${self.restaurant.is_favorite}`);
   BUTTON.setAttribute('aria-pressed', 'false');
   BUTTON.setAttribute('aria-disabled', 'false');
   BUTTON.style = 'display: block;';
