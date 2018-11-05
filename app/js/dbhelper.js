@@ -35,11 +35,20 @@ class DBHelper {
   static fetchRestaurants(callback) {
     let FUCNTION_ID = ' id #1 ';
     let FUCNTION_DESC = 'fetchRestaurants';
-    fetch(DBHelper.REMOTE_DATABASE_URL)
+/*     fetch(DBHelper.REMOTE_DATABASE_URL)
       .then(response => {
         return response.json();
       })
-      .then(restaurants => {
+ */     
+      dbPromise.then (function(db){
+        var tx = db.transaction(['restaurants'], 'readonly');
+        var store = tx.objectStore('restaurants');
+        /* tx.addEventListener('success', function(event){
+          restaurants = this.result;  // store results in global variable
+        }); */
+        return store.getAll();
+        })
+       .then(restaurants => {
           console.log(FUCNTION_ID, FUCNTION_DESC, '#1', restaurants);
           callback(null, restaurants);
         })

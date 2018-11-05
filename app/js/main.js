@@ -11,10 +11,11 @@ var markers = [];
  * @returns none
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+    DBHelper.addRestaurantsIdb();  
     initMap(); // added
     fetchNeighborhoods();
     fetchCuisines();
-    DBHelper.addRestaurantsIdb();
+    
     // DBHelper.addReviewsIdb();
 });
 
