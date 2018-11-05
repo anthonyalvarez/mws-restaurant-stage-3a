@@ -187,6 +187,21 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
   });
 
   container.appendChild(ul);
+  
+  // Add specific reviews to IDB
+  
+  dbPromise.then (function(db){
+
+    var transaction = db.transaction(['reviews'], 'readwrite');
+    var store = transaction.objectStore('reviews');
+    
+    for (let i =0; i < reviews.length; i++){
+      store.add(reviews[i]);
+    }
+
+    return transaction.complete;
+  });
+
 };
 
 /**

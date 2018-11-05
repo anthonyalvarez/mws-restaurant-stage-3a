@@ -221,7 +221,7 @@ class DBHelper {
     });
   }
 
-static addReviewsIdb() {
+/* static addReviewsIdb() {
   // debugger;
   // Fetch data from remote server
   // Put data into an array or object
@@ -243,9 +243,9 @@ static addReviewsIdb() {
   .catch (error => {
     console.trace('[addReviewsIdb Trace Error]', error);
   });
-}
+} */
 
 
-}
+} 
 
 /* TODO: Use comments to explain code: What does it cover, what purpose does it serve, and why is the respective solution used or preferred? Try JSDoc. */
