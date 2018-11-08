@@ -91,10 +91,10 @@ fetchRestaurantFromURL = (callback) => {
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  
+
   name.innerHTML = restaurant.name;
 
-  createFavoriteToggleHTML();
+  createFavoriteToggleHTML(restaurant);
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -124,14 +124,24 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   createReviewFormHTML();
 
-  fetch(remoteURL + self.restaurant.id)
+  // Read from IDB
+/*   const output = DBHelper.fetchReviewsByResturantId(self.restaurant.id);
+  console.log(output);
+ */
+/*   let idbReviews =  DBHelper.getIdbRestaurantReviews(self.restaurant.id);
+  console.log ('L135, idbReviews = ', idbReviews);
+ */
+  // fetch(remoteURL + self.restaurant.id)
+  DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+    .then(console.log('L136 output: ',self.restaurant.reviews))
     .then(response => response.json())
     .then(json =>{
       console.log(json);
       userComments = json;
       self.restaurant.reviews =userComments;
     })
-    .then( () => fillReviewsHTML())
+    .then(console.log('L142 output: ',self.restaurant.reviews))
+    .then(fillReviewsHTML())
     .catch(function(error){
       console.log('Fetch failed',error);
     });
@@ -187,16 +197,16 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
   });
 
   container.appendChild(ul);
-  
+
   // Add specific reviews to IDB
-  
+
   dbPromise.then (function(db){
 
     var transaction = db.transaction(['reviews'], 'readwrite');
     var store = transaction.objectStore('reviews');
-    
+
     for (let i =0; i < reviews.length; i++){
-      store.add(reviews[i]);
+      store.put(reviews[i]);
     }
 
     return transaction.complete;
@@ -349,7 +359,7 @@ userInputDataReviewForm = () => {
   const INPUT_NAME = document.getElementById('name');
   const INPUT_RATING = document.getElementById('rating');
   const INPUT_COMMENT = document.getElementById('comments');
-  
+
   FORM.addEventListener('submit',(e) => {
     // e.preventDefault;
     const DATA_NAME = INPUT_NAME.value;
@@ -368,7 +378,7 @@ userInputDataReviewForm = () => {
 }
 
 createFavoriteToggleHTML = (restaurant = self.restaurant) => {
-    
+
   console.log('Inside createFavoriteToggleHTML');
 
   const BUTTON = document.getElementById('restaurant-favorite-button');
@@ -404,6 +414,6 @@ createReviewFormHTML = (restaurant = self.restaurant) => {
   console.log('Inside createReviewFormHTML()');
   const FORM = document.getElementById('restaurant-id');
   FORM.value = parseInt(self.restaurant.id);
-  
+
   return;
 }

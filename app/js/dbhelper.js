@@ -39,7 +39,7 @@ class DBHelper {
       .then(response => {
         return response.json();
       })
- */     
+ */
       dbPromise.then (function(db){
         var tx = db.transaction(['restaurants'], 'readonly');
         var store = tx.objectStore('restaurants');
@@ -53,9 +53,10 @@ class DBHelper {
           callback(null, restaurants);
         })
       .catch (error => {
+          callback('L56 error', null);
           console.log(FUCNTION_ID, FUCNTION_DESC, error);
         });
-      console.log(FUCNTION_ID, FUCNTION_DESC,'#2', 'restaurants');
+      // console.log(FUCNTION_ID, FUCNTION_DESC,'#2', 'restaurants');
   }
 
   /**
@@ -84,12 +85,21 @@ class DBHelper {
    */
 
   static fetchReviewsByResturantId(id, callback) {
+    console.log('Function: fetchReviewsByResturantId and parameter ID', id);
     dbPromise.then (function(db){
       var tx = db.transaction(['reviews'], 'readonly');
-      var store = tx.objectStore('reviews');
-      return store.get('id');
-    });
-  } 
+      var store = tx.objectStore('restaurant_id');
+      return store.get(id);
+    })
+    .then(reviews => {
+      console.log( 'L94 These are reviews sent back', reviews);
+      callback(null, results);
+    })
+    .catch (error => {
+        console.log( 'L98 this is error' , error);
+      });
+
+  }
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -230,13 +240,31 @@ class DBHelper {
     });
   }
 
+  static getIdbRestaurantReviews(id) {
+    console.log('Function: getIdbRestaurantReviews, value of ID is: ', id);
+    dbPromise.then(db => {
+      var transaction = db.transaction(['reviews'], 'readonly');
+      var objStore = transaction.objectStore('reviews');
+      const storeIndex = objStore.index('restaurant_id');
+      console.log('Store Index', storeIndex);
+      return storeIndex.getAll(Number(id));
+    })
+    .then(reviews => {
+      console.log( 'L252 These are reviews sent back', reviews);
+      return reviews;
+    })
+    .catch (error => {
+        console.log( 'L256 this is error' , error);
+      });
+  }
+
 /* static addReviewsIdb() {
   // debugger;
   // Fetch data from remote server
   // Put data into an array or object
   fetch(DBHelper.REMOTE_REVIEWS_DB_URL).then(response => {
-    userReviews =response.json(); 
-    // return response.json(); 
+    userReviews =response.json();
+    // return response.json();
     return userReviews;
   }).then(reviews => {
     console.trace('[addReviewsIdb Trace]', reviews);
@@ -255,6 +283,6 @@ class DBHelper {
 } */
 
 
-} 
+}
 
 /* TODO: Use comments to explain code: What does it cover, what purpose does it serve, and why is the respective solution used or preferred? Try JSDoc. */
