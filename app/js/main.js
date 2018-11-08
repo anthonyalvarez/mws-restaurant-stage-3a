@@ -11,11 +11,11 @@ var markers = [];
  * @returns none
  */
 document.addEventListener('DOMContentLoaded', (event) => {
-    DBHelper.addRestaurantsIdb();  
+    DBHelper.addRestaurantsIdb();
     initMap(); // added
     fetchNeighborhoods();
     fetchCuisines();
-    
+
     // DBHelper.addReviewsIdb();
 });
 
@@ -198,6 +198,7 @@ createRestaurantHTML = (restaurant) => {
   image.src = FILENAME + '-sm.jpg';
   image.setAttribute('srcset', sourceSet);
   image.alt = restaurant.name;
+  li.setAttribute('role', 'listitem');
   li.append(image);
 
   let favoriteStatus = '';
