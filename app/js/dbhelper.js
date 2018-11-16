@@ -15,10 +15,10 @@ const dbPromise = idb.open('udacity-mws', 4, upgradeDB => {
       const reviewStorage = upgradeDB. createObjectStore('reviews', {keyPath: 'id'});
       reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
       break;
-/*     case 3:
+    case 3:
       console.log('Case 3: Creating Offline reviews IDB');
       const offlineReviewsStore = upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id', autoIncrement: true});
- */  }
+  }
 });
 
 
