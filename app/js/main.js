@@ -11,12 +11,13 @@ var markers = [];
  * @returns none
  */
 document.addEventListener('DOMContentLoaded', (event) => {
-    DBHelper.addRestaurantsIdb();
     initMap(); // added
     fetchNeighborhoods();
     fetchCuisines();
 
     // DBHelper.addReviewsIdb();
+    DBHelper.addRestaurantsIdb();
+
 });
 
 /**
@@ -25,14 +26,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * @returns none
  */
 fetchNeighborhoods = () => {
-    DBHelper.fetchNeighborhoods((error, neighborhoods) => {
-    if (error) { // Got an error
-      console.error(error);
-    } else {
+    DBHelper.fetchNeighborhoods()
+      .then ((neighborhoods) => {
       self.neighborhoods = neighborhoods;
       fillNeighborhoodsHTML();
-    }
-});
+    });
 };
 
 /**
@@ -57,15 +55,13 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
  * @returns {object} self.cuisines
  */
 fetchCuisines = () => {
-  DBHelper.fetchCuisines((error, cuisines) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.cuisines = cuisines;
-      fillCuisinesHTML();
-    }
-  });
-};
+  DBHelper.fetchCuisines()
+    .then((cuisines)  => {
+      console.log('Main.fetchCuisines.cuisines', cuisines);
+       self.cuisines = cuisines;
+       fillCuisinesHTML();
+    });
+  };
 
 /**
  * Set cuisines HTML.
@@ -89,6 +85,7 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
  * @returns {object} self.newMap - Updates global variable
  */
 initMap = () => {
+  console.log('Entering initMap');
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 12,
@@ -105,18 +102,7 @@ initMap = () => {
 
 updateRestaurants();
 };
-/* window.initMap = () => {
-  let loc = {
-    lat: 40.722216,
-    lng: -73.987501
-  };
-  self.map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 12,
-    center: loc,
-    scrollwheel: false
-  });
-  updateRestaurants();
-} */
+
 
 /**
  * Update page and map for current restaurants.
@@ -124,6 +110,7 @@ updateRestaurants();
  * @returns none
  */
 updateRestaurants = () => {
+  console.log('entering updateRestaurants');
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
@@ -132,14 +119,12 @@ updateRestaurants = () => {
 
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
-
-  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
+console.log('updateRestaurants cuisine', cuisine);
+console.log('updateRestaurants neighborhood', neighborhood);
+  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood)
+  .then((restaurants)  => {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
-    }
   });
 };
 
@@ -150,6 +135,7 @@ updateRestaurants = () => {
  */
 resetRestaurants = (restaurants) => {
   // Remove all restaurants
+  console.log('entering resetRestaurants function');
   self.restaurants = [];
   const ul = document.getElementById('restaurants-list');
   ul.innerHTML = '';
@@ -168,6 +154,7 @@ resetRestaurants = (restaurants) => {
  * @returns {object} none - updates DOM element
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
+  console.log('entering fillRestaurantsHTML function');
 
   const ul = document.getElementById('restaurants-list');
 
