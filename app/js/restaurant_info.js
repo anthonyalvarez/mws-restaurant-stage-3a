@@ -9,6 +9,8 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {
     initMap();
+    console.log('DOMContentLoaded, restaurant= ', restaurant);
+
 });
 
 /**
@@ -38,32 +40,19 @@ initMap = () => {
   });
 };
 
-/* window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
-        center: restaurant.latlng,
-        scrollwheel: false
-      });
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
-  });
-} */
 
 /**
  * Get current restaurant from page URL.
  * @param {requestCallback} callback - values: 1. fetched 2. Not found 3. Restaurant ID
  */
 fetchRestaurantFromURL = (callback) => {
+  console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
   if (self.restaurant) { // restaurant already fetched!
     callback(null, self.restaurant);
     return;
   }
   const id = getParameterByName('id');
+  console.log('entering fetchRestaurantFromURL, const id = ', id);
   if (!id) { // no id found in URL
     error = 'No restaurant id in URL';
     callback(error, null);
@@ -90,6 +79,7 @@ fetchRestaurantFromURL = (callback) => {
  * @returns {object} cuisine - from restaurant.cuisine_type
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+  console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
   const name = document.getElementById('restaurant-name');
 
   name.innerHTML = restaurant.name;
@@ -122,6 +112,30 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
       fillRestaurantHoursHTML();
   }
 
+  // get reviews, send ID as self.restaurant.id
+  // make a Promise
+
+
+  DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+  .then(function(response){
+
+    console.log('My userComments=', userComments);
+    return userComments = response;
+  });
+  // .then( response => {
+  //   self.restaurant.review = response;
+  //   console.log('self.restaurant.review = ', self.restaurant.review);
+  //   fillReviewsHTML;
+  // })
+  // .then(createReviewFormHTML())
+  // .catch(error => {
+  //   console.log('Return val from getIdbRestaurantReviews', userComments);
+  // });
+  self.restaurant.reviews = userComments;
+  console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
+
+  // fill reviews
+  fillReviewsHTML();
   createReviewFormHTML();
 
   // Read from IDB
@@ -132,7 +146,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   console.log ('L135, idbReviews = ', idbReviews);
  */
   // fetch(remoteURL + self.restaurant.id)
-  DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+/*   DBHelper.getIdbRestaurantReviews(self.restaurant.id)
     .then(console.log('L136 output: ',self.restaurant.reviews))
     .then(response => response.json())
     .then(json =>{
@@ -145,7 +159,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     .catch(function(error){
       console.log('Fetch failed',error);
     });
-
+ */
 };
 
 /**
@@ -179,7 +193,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * @returns {object} noReviews - prints "no reviews"
  */
  fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-   console.log('fillReviewsHTML');
+   console.log('entering fillReviewsHTML reviews = , ',reviews);
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -250,6 +264,7 @@ createReviewHTML = (review) => {
  * @returns {string} breadcrumb - Update Restaurant page DOM element from JSON data
  */
 fillBreadcrumb = (restaurant = self.restaurant) => {
+  console.log('Entering fillBreadcrumb, restaurant= ', restaurant);
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
