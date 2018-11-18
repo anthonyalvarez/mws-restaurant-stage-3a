@@ -9,7 +9,7 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {
     initMap();
-    console.log('DOMContentLoaded, restaurant= ', restaurant);
+    // console.log('DOMContentLoaded, restaurant= ', restaurant);
 
 });
 
@@ -17,11 +17,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * Initialize leaflet map
  */
 initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
+/*   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
     } else {
-      self.newMap = L.map('map', {
+ */     
+    fetchRestaurantFromURL(restaurant)
+    .then((restaurant) => {
+        console.log('initMap restaurant', restaurant);
+        self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
         scrollWheelZoom: false
@@ -36,8 +40,8 @@ initMap = () => {
       }).addTo(newMap);
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
-    }
-  });
+    });
+
 };
 
 
@@ -45,28 +49,31 @@ initMap = () => {
  * Get current restaurant from page URL.
  * @param {requestCallback} callback - values: 1. fetched 2. Not found 3. Restaurant ID
  */
-fetchRestaurantFromURL = (callback) => {
+fetchRestaurantFromURL = () => {
   console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
   if (self.restaurant) { // restaurant already fetched!
-    callback(null, self.restaurant);
-    return;
+    console.log('self.restaurant found', self.restaurant);
+    Promise.resolve(self.restaurant);
   }
+  
   const id = getParameterByName('id');
   console.log('entering fetchRestaurantFromURL, const id = ', id);
+
   if (!id) { // no id found in URL
     error = 'No restaurant id in URL';
-    callback(error, null);
+    // callback(error, null);
+    console.log(error);
+    Promise.resolve(self.restaurant);
   } else {
-    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-      self.restaurant = restaurant;
-      if (!restaurant) {
-        console.error(error);
-        return;
-      }
-      fillRestaurantHTML();
-      callback(null, restaurant);
-    });
-  }
+      return DBHelper.fetchRestaurantById(id)
+      .then((response) => {
+        self.restaurant = response;
+        restaurant = self.restaurant;
+        fillRestaurantHTML();
+        console.log('response found', self.response);
+        return response;
+      });
+  }  
 };
 
 
@@ -116,13 +123,22 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   // make a Promise
 
 
-  DBHelper.getIdbRestaurantReviews(self.restaurant.id)
-  .then(function(response){
-
-    console.log('My userComments=', userComments);
-    return userComments = response;
+  // userComments = DBHelper.getIdbRestaurantReviews(self.restaurant.id);
+  DBHelper.addReviewsIdb(self.restaurant.id)
+  .then ((response) =>{
+    userComments = response;
+    self.restaurant.reviews = userComments;
+    fillReviewsHTML();
+  
   });
-  // .then( response => {
+  
+
+  // .then((response) => {
+
+  //   console.log('My userComments=', userComments);
+  //   return userComments = response;
+  // });
+  // // .then( response => {
   //   self.restaurant.review = response;
   //   console.log('self.restaurant.review = ', self.restaurant.review);
   //   fillReviewsHTML;
@@ -131,12 +147,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   // .catch(error => {
   //   console.log('Return val from getIdbRestaurantReviews', userComments);
   // });
-  self.restaurant.reviews = userComments;
+  
   console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
 
   // fill reviews
-  fillReviewsHTML();
-  createReviewFormHTML();
+  // fillReviewsHTML();
+  // createReviewFormHTML();
 
   // Read from IDB
 /*   const output = DBHelper.fetchReviewsByResturantId(self.restaurant.id);

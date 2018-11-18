@@ -4,20 +4,32 @@ var CONSOLE_LOG_ID = '[DB-HELPER]';
  * Common database helper functions.
  */
 
-const dbPromise = idb.open('udacity-mws', 4, upgradeDB => {
+const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
-    case 1:
-      console.log('Case 1: creating restaurant IDB');
+    
+    console.log('Case 1: creating restaurant IDB');
+    upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+  
+    console.log('Case 2: creating restaurant IDB');
+    const reviewStorage = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
+    reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
+  
+    console.log('Case 3: Creating Offline reviews IDB');
+    upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id'});
+
+/*    case 1:
+       console.log('Case 1: creating restaurant IDB');
       upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
     case 2:
       console.log('Case 2: creating restaurant IDB');
-      const reviewStorage = upgradeDB. createObjectStore('reviews', {keyPath: 'id'});
+      const reviewStorage = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
       reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
-      break;
     case 3:
       console.log('Case 3: Creating Offline reviews IDB');
-      const offlineReviewsStore = upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id', autoIncrement: true});
+      const offlineReviewsStore = upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id'});
+ */  
+
   }
 });
 
@@ -94,7 +106,7 @@ class DBHelper {
    */
   static fetchRestaurantById(id) {
     // fetch all restaurants with proper error handling.
-    DBHelper.idbFetchRestaurants()
+    return DBHelper.idbFetchRestaurants()
     .then(function(response){
       console.log('fetchRestaurantById', response);
       const restaurant = response.find(r => r.id == id);
@@ -277,28 +289,34 @@ class DBHelper {
   }
 
   static addReviewsIdb(restaurant_id) {
-    // debugger;
-    // Fetch data from remote server
-    // Put data into an array or object
     const ENDPOINT_REVIEWS = DBHelper.REMOTE_REVIEWS_DB_URL + '/?restaurant_id='+ restaurant_id;
-    fetch(ENDPOINT_REVIEWS).then(response => {
-      let userReviews =response.json();
-      // return response.json();
-      return userReviews;
-    }).then(reviews => {
-      console.trace('[addReviewsIdb Trace]', reviews);
-        dbPromise.then(function(db) {
-        const tx = db.transaction('reviews', 'readwrite');
-        const myStorage = tx.objectStore('reviews');
-        for ( let i = 0; i < reviews.length; i++) {
-          myStorage.put(reviews[i]);
-      }
-        return tx.complete;
-      });
+    return fetch(ENDPOINT_REVIEWS)
+    .then(response => {
+      return response.json();      
     })
-    .catch (error => {
-      console.trace('[addReviewsIdb Trace Error]', error);
+    .then(reviews => {
+      console.trace('[addReviewsIdb Trace]', reviews);
+      return reviews;
     });
+    
+      //   dbPromise.then(function(db) {
+      //   const tx = db.transaction('reviews', 'readwrite');
+      //   const myStorage = tx.objectStore('reviews');
+
+      //   for ( let i = 0; i < reviews.length; i++) {
+      //     console.log('putIdbReviews',reviews[i] );
+      //     myStorage.put(reviews[i]);
+      //   }
+      //   return tx.complete;
+      // })
+      
+    // })
+    // .then(function() {
+      
+    // })
+    // .catch (error => {
+    //   console.trace('[addReviewsIdb Trace Error]', error);
+    // });
   }
 
 
@@ -316,7 +334,7 @@ class DBHelper {
         userComments = response;
         // self.restaurants[RESTAURANT_ID].reviews = userComments;
         if (response.length === 0) {
-          console.log('no reviews in IDB');
+          console.log('no reviews found in IDB');
           // Review not found in IDB
           // Fetch review from API and save in IDB
           console.log('Calling addReviewsIdb with: ', RESTAURANT_ID);
