@@ -7,16 +7,16 @@ var CONSOLE_LOG_ID = '[DB-HELPER]';
 const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
-    
+
     console.log('Case 1: creating restaurant IDB');
     upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
-  
-    console.log('Case 2: creating restaurant IDB');
-    const reviewStorage = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
+
+    console.log('Case 2: creating reviews IDB');
+    const reviewStorage = upgradeDB.createObjectStore('reviews', {keyPath: 'id', autoIncrement: true});
     reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
-  
+
     console.log('Case 3: Creating Offline reviews IDB');
-    upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id'});
+    upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id', autoIncrement: true});
 
 /*    case 1:
        console.log('Case 1: creating restaurant IDB');
@@ -28,7 +28,7 @@ const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
     case 3:
       console.log('Case 3: Creating Offline reviews IDB');
       const offlineReviewsStore = upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id'});
- */  
+ */
 
   }
 });
@@ -91,11 +91,20 @@ class DBHelper {
 
   }
 
+/**
+ * @description - read all restaturants from IDB
+ * @param - none
+ * @returns - {Array} of restaurant objects
+ */
   static idbFetchRestaurants(){
+    const DEBUG_MODE = false;
     return dbPromise.then (function(db){
       var tx = db.transaction(['restaurants'], 'readonly');
       var store = tx.objectStore('restaurants');
-      console.log('idbFetchRestaurants  = ', store.getAll());
+
+      if (DEBUG_MODE){
+        console.log('idbFetchRestaurants output= ', store.getAll());
+      }
 
       return store.getAll();
     });
@@ -103,43 +112,54 @@ class DBHelper {
 
   /**
    * Fetch a restaurant by its ID.
+   * @description Fetch a restaurant by its ID number
+   * @param {number} Restaurant ID
+   * @returns {object} Restaurant Object
    */
   static fetchRestaurantById(id) {
+    const DEBUG_MODE = false;
     // fetch all restaurants with proper error handling.
     return DBHelper.idbFetchRestaurants()
-    .then(function(response){
-      console.log('fetchRestaurantById', response);
+    .then((response)=>{
+      if (DEBUG_MODE){
+      console.log('idbFetchRestaurants', response);
+      }
       const restaurant = response.find(r => r.id == id);
-      if (restaurant) {
+      if (restaurant){
         return restaurant;
       } else {
         return null;
       }
     })
-    .catch (function(error){
-      console.log(error);
-      return error;
+    .catch ((err)=>{
+      throw new Error('DBHelper.fetchRestaurantById(id)' + err.message + '& restaurant=', restaurant);
     });
   }
 
 
   /**
-   * @params - Three (3): database name, object store name
-   * @returns -  none
-   * @description - Read Data
+   * @params {number} Restaurant ID
+   * @returns {object} Reviews
+   * @description Searches Reviews from IDB index.
    */
 
-  static fetchReviewsByResturantId(id, callback) {
+  static fetchReviewsByResturantId(id) {
     console.log('Function: fetchReviewsByResturantId and parameter ID', id);
     dbPromise.then (function(db){
       var tx = db.transaction(['reviews'], 'readonly');
-      var store = tx.objectStore('restaurant_id');
-      return store.get(id);
+      var store = tx.objectStore('reviews');
+      var index = store.index('restaurant_id');
+      // let restaurantReviews = index.getAll(id);
+      // console.log( 'L95 These are reviews sent back', restaurantReviews);
+      return index.getAll(id);
+      // return restaurantReviews;
     })
-    .then(reviews => {
-      console.log( 'L94 These are reviews sent back', reviews);
-      callback(null, results);
-    })
+    // .then(reviews => {
+      // console.log( 'L94 These are reviews sent back', reviews);
+      // console.log('reviews', reviews);
+      // return reviews;
+      // callback(null, reviews);
+    // })
     .catch (error => {
         console.log( 'L98 this is error' , error);
       });
@@ -268,10 +288,13 @@ class DBHelper {
     marker.addTo(newMap);
     return marker;
   }
-
+/**
+ * @description Get all restaurant objects from API and save to IDB
+ * @summary Used in DBHeler.js only
+ * @param {null}
+ * @returns {array} of saved restaurant objects to IDB
+ */
   static addRestaurantsIdb() {
-    // Fetch data from remote server
-    // Put data into an array or object
     fetch(DBHelper.REMOTE_DATABASE_URL).then(response => {return response.json(); }).then(restaurants => {
       console.trace('[addRestaurantsIdb Trace]', restaurants);
         dbPromise.then(function(db) {
@@ -288,17 +311,60 @@ class DBHelper {
     });
   }
 
+/**
+ * @description Get Reviews from API and save to IDB
+ * @param {number} is a restaurant_id
+ * @returns {array} of review objects from API
+ */
+
   static addReviewsIdb(restaurant_id) {
     const ENDPOINT_REVIEWS = DBHelper.REMOTE_REVIEWS_DB_URL + '/?restaurant_id='+ restaurant_id;
     return fetch(ENDPOINT_REVIEWS)
-    .then(response => {
-      return response.json();      
-    })
-    .then(reviews => {
-      console.trace('[addReviewsIdb Trace]', reviews);
-      return reviews;
-    });
-    
+      .then(response => {
+        return response.json();
+      })
+        .then(reviews => {
+          // console.log('addReviewsIdb: adding reviews to IDB', reviews);
+          userComments = reviews;
+          self.restaurant.reviews = userComments;
+          if (reviews) {
+            console.log('addReviewsIdb:userComments=', reviews);
+            return reviews;
+          }
+
+          dbPromise.then(function(db) {
+            const tx = db.transaction(['reviews'], 'readwrite');
+            const myStorage = tx.objectStore('reviews');
+
+            for ( let i = 0; i < reviews.length; i++) {
+              // console.log('Reviews length=',reviews.length);
+              // console.log('Reviews data=',reviews[i] );
+              myStorage.put(reviews[i]);
+              }
+            tx.complete;
+            // return reviews;
+            })
+/*         .then((reviews) =>{
+          userComments = reviews;
+          self.restaurant.reviews = reviews;
+          return reviews;
+        })
+ */        // .catch((err) => {
+        //   // tx.abort();
+        //   console.log('IDB put fail: ', err);
+        //   throw new Error('Cannot return review array. ' + err.message);
+        // })
+      // .then(reviews => {
+        // console.trace('[addReviewsIdb Trace]', reviews);
+        // return reviews;
+      })
+      // .then(DBHelper.getIdbRestaurantReviews(restaurant_id))
+      .catch(err => {
+        console.trace( 'addReviewsIdb error: ', error);
+        throw new Error('Cannot save reviews to IDB. ' + err.message);
+      });
+
+
       //   dbPromise.then(function(db) {
       //   const tx = db.transaction('reviews', 'readwrite');
       //   const myStorage = tx.objectStore('reviews');
@@ -309,17 +375,42 @@ class DBHelper {
       //   }
       //   return tx.complete;
       // })
-      
+
     // })
     // .then(function() {
-      
+
     // })
     // .catch (error => {
     //   console.trace('[addReviewsIdb Trace Error]', error);
     // });
   }
+/**
+ * @description Save reviews to IDB
+ * @summary NOT USED YET, at all
+ * @param {array} of review objects
+ * @returns {null}
+ */
+  static idbSaveReviews(reviews){
+    dbPromise.then(function(db) {
+    const tx = db.transaction('reviews', 'readwrite');
+    const myStorage = tx.objectStore('reviews');
 
+    for ( let i = 0; i < reviews.length; i++) {
+      console.log('putIdbReviews',reviews[i] );
+      myStorage.put(reviews[i]);
+      }
 
+    return tx.complete;
+    });
+
+  }
+
+/**
+ * @description get reviews from IDB
+ * @summary NOT USED in restaurant_info.js, but in DBHelper.js: addReviewsIdb()
+ * @param {number} of restaurant id
+ * @returns {array} of reviews from IDB
+ */
   static getIdbRestaurantReviews(id) {
     console.log('Inside Function: getIdbRestaurantReviews, value of ID is: ', id);
      dbPromise.then(db => {
@@ -349,6 +440,7 @@ class DBHelper {
                 .catch(DBHelper.logError);
  */        } else {
    console.log('exiting getIdbRestaurantReviews: userComments= ', userComments );
+              self.restaurant.reviews = userComments;
               return userComments;
           }
         console.log('exiting getIdbRestaurantReviews', response);
@@ -359,5 +451,3 @@ class DBHelper {
 
 
 }
-
-/* TODO: Use comments to explain code: What does it cover, what purpose does it serve, and why is the respective solution used or preferred? Try JSDoc. */

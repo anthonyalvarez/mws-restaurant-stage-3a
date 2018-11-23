@@ -8,23 +8,30 @@ var newMap;
  * @param {string} listener - The object which receives a notification
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  // const DEBUG_MODE = false;
+  // if (DEBUG_MODE){
+    // console.log('DOM fully loaded and parsed');
+  // }
     initMap();
     // console.log('DOMContentLoaded, restaurant= ', restaurant);
 
 });
 
 /**
- * Initialize leaflet map
+ * @description Initialize leaflet map
+ * @param {null}
+ * @returns {object} Restaurant data and map
  */
 initMap = () => {
 /*   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
     } else {
- */     
+ */
+          // console.log('Entering initMap');
     fetchRestaurantFromURL(restaurant)
     .then((restaurant) => {
-        console.log('initMap restaurant', restaurant);
+        // console.log('initMap restaurant', restaurant);
         self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
@@ -40,40 +47,74 @@ initMap = () => {
       }).addTo(newMap);
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
+    })
+    .catch((err)=>{
+      throw new Error('fetchRestaurantFromURL. ' + err.message);
     });
+    // fetchReviewsByResturantId()
+    // .then((data)=>{
+    // console.log('fetchReviewsByResturantId returns', data)
+    // });
+  };
+
+fetchReviewsByResturantId = () => {
+  console.log('Entering fetchReviewsByResturantId, restaurant= ', restaurant);
+
+  const id = getParameterByName('id');
+  console.log('getParameterByName ID = ', id);
+
+  // DBHelper.fetchReviewsByResturantId(id)
+    // .then(fillReviewsHTML);
 
 };
 
-
 /**
- * Get current restaurant from page URL.
- * @param {requestCallback} callback - values: 1. fetched 2. Not found 3. Restaurant ID
+ * @description Get current restaurant from page URL
+ * @param {null}
+ * @returns {object} a Restaurant
  */
 fetchRestaurantFromURL = () => {
-  console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
+  // const DEBUG_MODE = false;
+  // if (DEBUG_MODE){
+    // console.log('Entering fetchRestaurantFromURL, restaurant= ', restaurant);
+    // }
   if (self.restaurant) { // restaurant already fetched!
-    console.log('self.restaurant found', self.restaurant);
-    Promise.resolve(self.restaurant);
-  }
-  
-  const id = getParameterByName('id');
-  console.log('entering fetchRestaurantFromURL, const id = ', id);
+    // if (DEBUG_MODE) {
+      console.log('self.restaurant found', self.restaurant);
+    // }
+    // Promise.resolve(self.restaurant);
+    return self.restaurant;
+    } else {
+      const id = getParameterByName('id');
+      // if (DEBUG_MODE){
+        // console.log('getParameterByName ID = ', id);
+      // }
+      if (!id) { // no id found in URL
+        error = 'No restaurant id in URL';
+        // callback(error, null);
+        console.log(error);
+        // Promise.resolve(self.restaurant);
+      } else {
+          return DBHelper.fetchRestaurantById(id)
+          .then((response) => {
+            self.restaurant = response;
+            restaurant = self.restaurant;
+            // if (DEBUG_MODE){
+              // console.trace('L.90, DBHelper.fetchRestaurantById', self.restaurant);
+            // }
+            if (restaurant) {
+              fillRestaurantHTML();
+            }
+            return response;
+          })
+          .catch((err)=>{
+            throw new Error('L95 DBHelper.fetchRestaurantById(id)' + err.message);
+          });
+      }
+    }
 
-  if (!id) { // no id found in URL
-    error = 'No restaurant id in URL';
-    // callback(error, null);
-    console.log(error);
-    Promise.resolve(self.restaurant);
-  } else {
-      return DBHelper.fetchRestaurantById(id)
-      .then((response) => {
-        self.restaurant = response;
-        restaurant = self.restaurant;
-        fillRestaurantHTML();
-        console.log('response found', self.response);
-        return response;
-      });
-  }  
+
+
 };
 
 
@@ -86,7 +127,7 @@ fetchRestaurantFromURL = () => {
  * @returns {object} cuisine - from restaurant.cuisine_type
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
-  console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
+  // console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
   const name = document.getElementById('restaurant-name');
 
   name.innerHTML = restaurant.name;
@@ -124,14 +165,32 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
 
   // userComments = DBHelper.getIdbRestaurantReviews(self.restaurant.id);
+
   DBHelper.addReviewsIdb(self.restaurant.id)
-  .then ((response) =>{
+  // DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+  .then((response) =>{
+    console.log('L172 fillRestaurantHTML reviews=', response);
     userComments = response;
     self.restaurant.reviews = userComments;
-    fillReviewsHTML();
-  
+    // console.log('L175 fillRestaurantHTML reviews=', self.restaurant.reviews);
+      // console.log('L176 fillRestaurantHTML L179 no data', userComments);
+    if (userComments) {
+      fillReviewsHTML(userComments);
+    } else {
+      console.log('L180 fillRestaurantHTML: no data', userComments);
+    }
+
+  })
+  .catch((err)=>{
+    throw new Error('DBHelper.addReviewsIdb(self.restaurant.id) error. ' + err.message);
   });
-  
+  // .then((response) =>{
+    // userComments = response;
+    // self.restaurant.reviews = userComments;
+    // fillReviewsHTML();
+
+  // });
+
 
   // .then((response) => {
 
@@ -147,12 +206,22 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   // .catch(error => {
   //   console.log('Return val from getIdbRestaurantReviews', userComments);
   // });
-  
+
   console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
 
   // fill reviews
+/*   if (self.restaurant.reviews) {
+    fillReviewsHTML();
+  } else {
+      return DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+        .then(fillReviewsHTML)
+        .catch((err)=>{
+          throw new Error(' DBHelper.getIdbRestaurantReviews error:', err.message);
+    })
+  }
+ */
   // fillReviewsHTML();
-  // createReviewFormHTML();
+  createReviewFormHTML();
 
   // Read from IDB
 /*   const output = DBHelper.fetchReviewsByResturantId(self.restaurant.id);
@@ -210,7 +279,17 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
  fillReviewsHTML = (reviews = self.restaurant.reviews) => {
    console.log('entering fillReviewsHTML reviews = , ',reviews);
-  const container = document.getElementById('reviews-container');
+   console.log('entering fillReviewsHTML self.restaurant.reviews = , ',self.restaurant.reviews);
+
+   // if reviews exist then continue, else getReviewsForRestaurant
+
+   if (reviews) {
+
+   } else {
+
+   }
+
+   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
@@ -230,7 +309,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
   // Add specific reviews to IDB
 
-  dbPromise.then (function(db){
+/*   dbPromise.then (function(db){
 
     var transaction = db.transaction(['reviews'], 'readwrite');
     var store = transaction.objectStore('reviews');
@@ -241,7 +320,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
     return transaction.complete;
   });
-
+ */
 };
 
 /**
@@ -277,10 +356,12 @@ createReviewHTML = (review) => {
 /**
  * Add restaurant name to the breadcrumb navigation menu
  * @param {object} restaurant - From restuarant.json data file
- * @returns {string} breadcrumb - Update Restaurant page DOM element from JSON data
+ * @returns {string} breadcrumb - Update Restaurant page DOM element from JSON data object
  */
 fillBreadcrumb = (restaurant = self.restaurant) => {
-  console.log('Entering fillBreadcrumb, restaurant= ', restaurant);
+  // if (DEBUG_MODE){
+    // console.log('Entering fillBreadcrumb, restaurant= ', restaurant);
+  // }
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
@@ -289,7 +370,7 @@ fillBreadcrumb = (restaurant = self.restaurant) => {
 
 /**
  * Get a parameter by name from page URL.
- * @param {string} name
+ * @param {string} name of URL query parameter
  * @param {string} url - web address
  * @returns {string} results - Unencoded version of an encoded component of URI
  */
@@ -372,8 +453,14 @@ function toggleFavoriteStatus () {
   // put PUT request using FETCH
 }
 
+
+/**
+ * @description Adds Review form to current page
+ * @param {null} requires self.restauramt
+ * @returns {null} updates DOM
+ */
 userInputDataReviewForm = () => {
-  DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+/*   DBHelper.fetchRestaurantById(id, (error, restaurant) => {
     self.restaurant = restaurant;
     if (!restaurant) {
       console.error(error);
@@ -382,7 +469,7 @@ userInputDataReviewForm = () => {
     fillRestaurantHTML();
     callback(null, restaurant);
   });
-
+ */
 
   console.log('Funtion: userInputDataReviewForm', restaurant);
   const FORM = document.getElementById('userInputForm');
@@ -410,7 +497,7 @@ userInputDataReviewForm = () => {
 
 createFavoriteToggleHTML = (restaurant = self.restaurant) => {
 
-  console.log('Inside createFavoriteToggleHTML');
+  // console.log('Inside createFavoriteToggleHTML');
 
   const BUTTON = document.getElementById('restaurant-favorite-button');
 
@@ -422,7 +509,7 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
   BUTTON.style = 'display: block;';
 
   let favoriteStatus;
-  console.log('createFavoriteToggleHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
+  // console.log('createFavoriteToggleHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
 
   if (self.restaurant.is_favorite == false || self.restaurant.is_favorite == 'false' || self.restaurant.is_favorite == undefined ) {
     favoriteStatus = 'Not a Favorite';
