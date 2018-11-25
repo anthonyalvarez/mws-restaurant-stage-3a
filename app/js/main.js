@@ -6,25 +6,27 @@ var newMap;
 var markers = [];
 
 /**
- * Fetch neighborhoods and cuisines as soon as the page is loaded.
+ * @description Fetch neighborhoods and cuisines as soon as the page is loaded.
+ * @summary
  * @param {object} event - A DOM mutation event type to listen for
- * @returns none
+ * @returns {null}
  */
+
 document.addEventListener('DOMContentLoaded', (event) => {
     initMap(); // added
     fetchNeighborhoods();
     fetchCuisines();
-
-    // DBHelper.addReviewsIdb();
     DBHelper.addRestaurantsIdb();
 
 });
 
 /**
- * Fetch all neighborhoods and set their HTML.
- * @param none
- * @returns none
+ * @description Fetch all neighborhoods and set their HTML.
+ * @summary
+ * @param {null}
+ * @returns {null}
  */
+
 fetchNeighborhoods = () => {
     DBHelper.fetchNeighborhoods()
       .then ((neighborhoods) => {
@@ -34,10 +36,12 @@ fetchNeighborhoods = () => {
 };
 
 /**
- * Set neighborhoods HTML.
+ * @description Set neighborhoods HTML.
+ * @summary
  * @param  {object} neighborhoods - from data file
  * @returns {object} option - populates option DOM element
  */
+
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
   neighborhoods.forEach(neighborhood => {
@@ -49,25 +53,31 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 };
 
 /**
- * Fetch all cuisines and set their HTML.
+ * @description Fetch all cuisines and set their HTML.
+ * @summary
  * @param {object} error
  * @param {object} cuisines - from data file
  * @returns {object} self.cuisines
  */
+
 fetchCuisines = () => {
-  DBHelper.fetchCuisines()
-    .then((cuisines)  => {
-      console.log('Main.fetchCuisines.cuisines', cuisines);
-       self.cuisines = cuisines;
-       fillCuisinesHTML();
-    });
-  };
+  if (!self.restaurants) {
+    DBHelper.fetchCuisines()
+      .then((cuisines)  => {
+        console.log('Main.fetchCuisines.cuisines', cuisines);
+        self.cuisines = cuisines;
+        fillCuisinesHTML();
+      });
+  }
+};
 
 /**
- * Set cuisines HTML.
+ * @description Set cuisines HTML.
+ * @summary
  * @param {object} cuisines
  * @returns none - Updated DOM element
  */
+
 fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
 
@@ -80,10 +90,12 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
 };
 
 /**
- * Initialize leaflet map, called from HTML.
- * @param none
+ * @description Initialize leaflet map, called from HTML.
+ * @summary
+ * @param {null}
  * @returns {object} self.newMap - Updates global variable
  */
+
 initMap = () => {
   console.log('Entering initMap');
   self.newMap = L.map('map', {
@@ -101,14 +113,17 @@ initMap = () => {
   }).addTo(newMap);
 
 updateRestaurants();
+
 };
 
 
 /**
- * Update page and map for current restaurants.
- * @param none
- * @returns none
+ * @description Update page and map for current restaurants.
+ * @summary
+ * @param {null}
+ * @returns {null}
  */
+
 updateRestaurants = () => {
   console.log('entering updateRestaurants');
   const cSelect = document.getElementById('cuisines-select');
@@ -129,10 +144,12 @@ console.log('updateRestaurants neighborhood', neighborhood);
 };
 
 /**
- * Clear current restaurants, their HTML and remove their map markers.
+ * @description Clear current restaurants, their HTML and remove their map markers.
+ * @summary
  * @param {object} restaurants - from data file
  * @returns {object} self.restaurants - Updates global variable
  */
+
 resetRestaurants = (restaurants) => {
   // Remove all restaurants
   console.log('entering resetRestaurants function');
@@ -149,10 +166,12 @@ resetRestaurants = (restaurants) => {
 };
 
 /**
- * Create all restaurants HTML and add them to the webpage.
+ * @description Create all restaurants HTML and add them to the webpage.
+ * @summary
  * @param {object} restaurants - from data file
  * @returns {object} none - updates DOM element
  */
+
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
   console.log('entering fillRestaurantsHTML function');
 
@@ -166,10 +185,12 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
 };
 
 /**
- * Create restaurant HTML.
+ * @description Create restaurant HTML.
+ * @summary
  * @param {object} restaurant - from data file
  * @returns none - Updates DOM elements
  */
+
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
@@ -225,13 +246,16 @@ createRestaurantHTML = (restaurant) => {
   li.append(more);
 
   return li;
+
 };
 
 /**
- * Add markers for current restaurants to the map.
+ * @description Add markers for current restaurants to the map.
+ * @summary
  * @param {object} restaurants - from data file
  * @returns {object} self.markers - Updates global variable
  */
+
 addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     // Add marker to the map
@@ -245,13 +269,3 @@ addMarkersToMap = (restaurants = self.restaurants) => {
   });
 
 };
-/* addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
-    });
-    self.markers.push(marker);
-  });
-} */

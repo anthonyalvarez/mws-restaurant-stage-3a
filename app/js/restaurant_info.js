@@ -23,50 +23,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * @returns {object} Restaurant data and map
  */
 initMap = () => {
-/*   fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
- */
-          // console.log('Entering initMap');
-    fetchRestaurantFromURL(restaurant)
-    .then((restaurant) => {
-        // console.log('initMap restaurant', restaurant);
-        self.newMap = L.map('map', {
-        center: [restaurant.latlng.lat, restaurant.latlng.lng],
-        zoom: 16,
-        scrollWheelZoom: false
+    if (!self.restaurant) {
+      fetchRestaurantFromURL(restaurant)
+      .then((restaurant) => {
+          self.newMap = L.map('map', {
+          center: [restaurant.latlng.lat, restaurant.latlng.lng],
+          zoom: 16,
+          scrollWheelZoom: false
+        });
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
+          mapboxToken: 'pk.eyJ1IjoibmF0aXZlbmV3eW9ya2VyIiwiYSI6ImNqazhzMWxxMTF0ODIzdm5jZ2NnamR3eG8ifQ.Dfx6pjS78w1T73PxRlM8Iw',
+          maxZoom: 18,
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                  '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                  'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          id: 'mapbox.streets'
+        }).addTo(newMap);
+        fillBreadcrumb();
+        DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
       });
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-        mapboxToken: 'pk.eyJ1IjoibmF0aXZlbmV3eW9ya2VyIiwiYSI6ImNqazhzMWxxMTF0ODIzdm5jZ2NnamR3eG8ifQ.Dfx6pjS78w1T73PxRlM8Iw',
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'
-      }).addTo(newMap);
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
-    })
-    .catch((err)=>{
-      throw new Error('fetchRestaurantFromURL. ' + err.message);
-    });
-    // fetchReviewsByResturantId()
-    // .then((data)=>{
-    // console.log('fetchReviewsByResturantId returns', data)
-    // });
+    }
   };
-
-fetchReviewsByResturantId = () => {
-  console.log('Entering fetchReviewsByResturantId, restaurant= ', restaurant);
-
-  const id = getParameterByName('id');
-  console.log('getParameterByName ID = ', id);
-
-  // DBHelper.fetchReviewsByResturantId(id)
-    // .then(fillReviewsHTML);
-
-};
 
 /**
  * @description Get current restaurant from page URL
@@ -74,47 +51,30 @@ fetchReviewsByResturantId = () => {
  * @returns {object} a Restaurant
  */
 fetchRestaurantFromURL = () => {
-  // const DEBUG_MODE = false;
-  // if (DEBUG_MODE){
-    // console.log('Entering fetchRestaurantFromURL, restaurant= ', restaurant);
-    // }
+  console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
+
   if (self.restaurant) { // restaurant already fetched!
-    // if (DEBUG_MODE) {
-      console.log('self.restaurant found', self.restaurant);
-    // }
-    // Promise.resolve(self.restaurant);
-    return self.restaurant;
-    } else {
-      const id = getParameterByName('id');
-      // if (DEBUG_MODE){
-        // console.log('getParameterByName ID = ', id);
-      // }
-      if (!id) { // no id found in URL
-        error = 'No restaurant id in URL';
-        // callback(error, null);
-        console.log(error);
-        // Promise.resolve(self.restaurant);
-      } else {
-          return DBHelper.fetchRestaurantById(id)
-          .then((response) => {
-            self.restaurant = response;
-            restaurant = self.restaurant;
-            // if (DEBUG_MODE){
-              // console.trace('L.90, DBHelper.fetchRestaurantById', self.restaurant);
-            // }
-            if (restaurant) {
-              fillRestaurantHTML();
-            }
-            return response;
-          })
-          .catch((err)=>{
-            throw new Error('L95 DBHelper.fetchRestaurantById(id)' + err.message);
-          });
-      }
-    }
+    console.log('self.restaurant found', self.restaurant);
+    Promise.resolve(self.restaurant);
+  }
 
+  const id = getParameterByName('id');
+  console.log('entering fetchRestaurantFromURL, const id = ', id);
 
-
+  if (!id) { // no id found in URL
+    error = 'No restaurant id in URL';
+    console.log(error);
+    Promise.resolve(self.restaurant);
+  } else {
+      return DBHelper.fetchRestaurantById(id)
+      .then((response) => {
+        self.restaurant = response;
+        restaurant = self.restaurant;
+        fillRestaurantHTML();
+        console.log('response found', self.response);
+        return response;
+      });
+  }
 };
 
 
@@ -127,7 +87,7 @@ fetchRestaurantFromURL = () => {
  * @returns {object} cuisine - from restaurant.cuisine_type
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
-  // console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
+  console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
   const name = document.getElementById('restaurant-name');
 
   name.innerHTML = restaurant.name;
@@ -160,37 +120,26 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
       fillRestaurantHoursHTML();
   }
 
-  // get reviews, send ID as self.restaurant.id
-  // make a Promise
+  if (!self.restaurant.review) {
+    DBHelper.addReviewsIdb(self.restaurant.id)
+    // DBHelper.getIdbRestaurantReviews(self.restaurant.id)
+    .then((response) =>{
+      userComments = response;
+      self.restaurant.reviews = userComments;
+      fillReviewsHTML();
+    });
+  } else {
 
+    // if online:
+    // fetch from API
+    // save to IDB
+    // save in RAM at self.restaurant.reviews and userComments
 
-  // userComments = DBHelper.getIdbRestaurantReviews(self.restaurant.id);
+    // if offline:
+    // check IDB
+    // save in RAM at self.restaurant.reviews and userComments
 
-  DBHelper.addReviewsIdb(self.restaurant.id)
-  // DBHelper.getIdbRestaurantReviews(self.restaurant.id)
-  .then((response) =>{
-    console.log('L172 fillRestaurantHTML reviews=', response);
-    userComments = response;
-    self.restaurant.reviews = userComments;
-    // console.log('L175 fillRestaurantHTML reviews=', self.restaurant.reviews);
-      // console.log('L176 fillRestaurantHTML L179 no data', userComments);
-    if (userComments) {
-      fillReviewsHTML(userComments);
-    } else {
-      console.log('L180 fillRestaurantHTML: no data', userComments);
-    }
-
-  })
-  .catch((err)=>{
-    throw new Error('DBHelper.addReviewsIdb(self.restaurant.id) error. ' + err.message);
-  });
-  // .then((response) =>{
-    // userComments = response;
-    // self.restaurant.reviews = userComments;
-    // fillReviewsHTML();
-
-  // });
-
+  }
 
   // .then((response) => {
 
@@ -210,41 +159,32 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
 
   // fill reviews
-/*   if (self.restaurant.reviews) {
-    fillReviewsHTML();
-  } else {
-      return DBHelper.getIdbRestaurantReviews(self.restaurant.id)
-        .then(fillReviewsHTML)
-        .catch((err)=>{
-          throw new Error(' DBHelper.getIdbRestaurantReviews error:', err.message);
-    })
-  }
- */
-  // fillReviewsHTML();
-  createReviewFormHTML();
+// fillReviewsHTML();
+// createReviewFormHTML();
 
-  // Read from IDB
+// Read from IDB
 /*   const output = DBHelper.fetchReviewsByResturantId(self.restaurant.id);
-  console.log(output);
- */
+console.log(output);
+*/
 /*   let idbReviews =  DBHelper.getIdbRestaurantReviews(self.restaurant.id);
-  console.log ('L135, idbReviews = ', idbReviews);
- */
-  // fetch(remoteURL + self.restaurant.id)
+console.log ('L135, idbReviews = ', idbReviews);
+*/
+// fetch(remoteURL + self.restaurant.id)
 /*   DBHelper.getIdbRestaurantReviews(self.restaurant.id)
-    .then(console.log('L136 output: ',self.restaurant.reviews))
-    .then(response => response.json())
-    .then(json =>{
-      console.log(json);
-      userComments = json;
-      self.restaurant.reviews =userComments;
-    })
-    .then(console.log('L142 output: ',self.restaurant.reviews))
-    .then(fillReviewsHTML())
-    .catch(function(error){
-      console.log('Fetch failed',error);
-    });
- */
+  .then(console.log('L136 output: ',self.restaurant.reviews))
+  .then(response => response.json())
+  .then(json =>{
+    console.log(json);
+    userComments = json;
+    self.restaurant.reviews =userComments;
+  })
+  .then(console.log('L142 output: ',self.restaurant.reviews))
+  .then(fillReviewsHTML())
+  .catch(function(error){
+    console.log('Fetch failed',error);
+  });
+*/
+
 };
 
 /**
@@ -281,14 +221,6 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
    console.log('entering fillReviewsHTML reviews = , ',reviews);
    console.log('entering fillReviewsHTML self.restaurant.reviews = , ',self.restaurant.reviews);
 
-   // if reviews exist then continue, else getReviewsForRestaurant
-
-   if (reviews) {
-
-   } else {
-
-   }
-
    const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -309,7 +241,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
   // Add specific reviews to IDB
 
-/*   dbPromise.then (function(db){
+  dbPromise.then (function(db){
 
     var transaction = db.transaction(['reviews'], 'readwrite');
     var store = transaction.objectStore('reviews');
@@ -320,7 +252,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
     return transaction.complete;
   });
- */
+
 };
 
 /**
@@ -359,9 +291,6 @@ createReviewHTML = (review) => {
  * @returns {string} breadcrumb - Update Restaurant page DOM element from JSON data object
  */
 fillBreadcrumb = (restaurant = self.restaurant) => {
-  // if (DEBUG_MODE){
-    // console.log('Entering fillBreadcrumb, restaurant= ', restaurant);
-  // }
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
@@ -460,7 +389,7 @@ function toggleFavoriteStatus () {
  * @returns {null} updates DOM
  */
 userInputDataReviewForm = () => {
-/*   DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+   DBHelper.fetchRestaurantById(id, (error, restaurant) => {
     self.restaurant = restaurant;
     if (!restaurant) {
       console.error(error);
@@ -469,7 +398,6 @@ userInputDataReviewForm = () => {
     fillRestaurantHTML();
     callback(null, restaurant);
   });
- */
 
   console.log('Funtion: userInputDataReviewForm', restaurant);
   const FORM = document.getElementById('userInputForm');
