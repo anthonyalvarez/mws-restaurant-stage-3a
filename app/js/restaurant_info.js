@@ -42,6 +42,15 @@ initMap = () => {
         fillBreadcrumb();
         DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
       });
+      // .catch((err) => {
+        // console.log('restaurant=', restaurant);
+        // console.log('Typeof=', (typeof restaurant));
+        // throw new Error('initMap() error ' + err.statusText);
+      // });
+    } else {
+      // console.log('self.restaurant=', self.restaurant);
+      // console.log('Typeof=', (typeof self.restaurant));
+      // throw new Error('initMap() error ' + err.statusText);
     }
   };
 
@@ -51,10 +60,10 @@ initMap = () => {
  * @returns {object} a Restaurant
  */
 fetchRestaurantFromURL = () => {
-  console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
+  // console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
 
   if (self.restaurant) { // restaurant already fetched!
-    console.log('self.restaurant found', self.restaurant);
+    // console.log('self.restaurant found', self.restaurant);
     Promise.resolve(self.restaurant);
   }
 
@@ -71,7 +80,7 @@ fetchRestaurantFromURL = () => {
         self.restaurant = response;
         restaurant = self.restaurant;
         fillRestaurantHTML();
-        console.log('response found', self.response);
+        console.log('response found', self.restaurant);
         return response;
       });
   }
@@ -87,7 +96,7 @@ fetchRestaurantFromURL = () => {
  * @returns {object} cuisine - from restaurant.cuisine_type
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
-  console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
+  // console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
   const name = document.getElementById('restaurant-name');
 
   name.innerHTML = restaurant.name;
@@ -156,7 +165,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   //   console.log('Return val from getIdbRestaurantReviews', userComments);
   // });
 
-  console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
+  // console.log('fillRestaurantHTMLvalue of self.restaurant.reviews = ',self.restaurant.reviews);
 
   // fill reviews
 // fillReviewsHTML();
@@ -218,10 +227,10 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * @returns {object} noReviews - prints "no reviews"
  */
  fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-   console.log('entering fillReviewsHTML reviews = , ',reviews);
+/*    console.log('entering fillReviewsHTML reviews = , ',reviews);
    console.log('entering fillReviewsHTML self.restaurant.reviews = , ',self.restaurant.reviews);
-
-   const container = document.getElementById('reviews-container');
+ */
+  const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
@@ -320,66 +329,81 @@ function toggleFavoriteStatus () {
 
   const ICON_NOT_FAVORITE = '&#x2661';
   const ICON_FAVORITE = '&#x1F9E1';
-
   const buttonElement = document.getElementById('restaurant-favorite-button');
   const buttonState = buttonElement.getAttribute('aria-pressed');
+  let buttonToggleState = Boolean(buttonElement.hasAttribute('favorite-toggle'));
   let buttonMessage = buttonElement.innerText;
-
   const RESTAURANT_ID = self.restaurant.id;
-  console.log('RESTAURANT_ID:', RESTAURANT_ID);
 
   const options = {
     method: 'PUT',
-    headers: new Headers ({
-      'Content-Type':'application/json'
-    })
+    headers: { 'Content-Type': 'application/json'}
   };
-  console.log('Headers', options);
 
-  if (buttonState ==='false'){
-    self.restaurant.is_favorite = 'true';
+  if (!buttonToggleState){
+
+    self.restaurant.is_favorite = true;
     buttonElement.setAttribute('aria-pressed', true);
     buttonMessage = 'Unfavorite this restaurant ' + ICON_FAVORITE;
-    // TODO: Add Put Request to Favorite a restaurant
-    // http://localhost:1337/restaurants/8/?is_favorite=true
-    const queryStr = 'is_favorite=true';
+    buttonElement.setAttribute('favorite-toggle', 'true');
+    const IS_FAVORITE = true;
+    const queryStr = 'is_favorite=' + IS_FAVORITE;
     const usp = new URLSearchParams(queryStr);
     const myName = usp.get('is_favorite');
-    console.log('Query String parameter', myName);
-    console.log('Query String values', usp.toString());
+    // console.log('Query String parameter', myName);
+    // console.log('Query String values', usp.toString());
     const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
-    console.log('Endpoint URL', endpoint);
+    // console.log('Endpoint URL', endpoint);
     const requestFavoriteTrue = new Request(endpoint, options);
+    // console.log('requestFavoriteTrue =', requestFavoriteTrue);
      fetch(requestFavoriteTrue)
       .then(response => response.json())
       .then(res => console.log(res))
+      .then(()=>{
+        return dbPromise.then(db => {
+          const temp = self.restaurant;
+          temp.is_favorite = true;
+          const tx = db.transaction(['restaurants'], 'readwrite');
+          const store = tx.objectStore('restaurants');
+          store.put(temp);
+          return tx.complete;
+        });
+       })
       .catch(error => console.log(`Error: ${error}`));
 
   } else {
-    self.restaurant.is_favorite = 'false';
+    self.restaurant.is_favorite = false;
     buttonElement.setAttribute('aria-pressed', false);
     buttonMessage = 'Favorite this restaurant ' + ICON_NOT_FAVORITE;
-    // TODO: Add Put Request to UN-Favorite a restaurant
-    // http://localhost:1337/restaurants/8/?is_favorite=false
+    buttonElement.removeAttribute('favorite-toggle');
     const queryStrFalse = 'is_favorite=false';
     const usp = new URLSearchParams(queryStrFalse);
     const myName = usp.get('is_favorite');
-    console.log('Query String parameter', myName);
-    console.log('Query String values', usp.toString());
+    // console.log('Query String parameter', myName);
+    // console.log('Query String values', usp.toString());
     const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
-    console.log('Endpoint URL', endpoint);
+    // console.log('Endpoint URL', endpoint);
     const requestFavoriteFalse = new Request(endpoint, options);
+    // console.log('requestFavoriteFalse =', requestFavoriteFalse);
     fetch(requestFavoriteFalse)
      .then(response => response.json())
      .then(res => console.log(res))
+     .then(()=>{
+      return dbPromise.then(db => {
+        const temp = self.restaurant;
+        temp.is_favorite = false;
+        const tx = db.transaction(['restaurants'], 'readwrite');
+        const store = tx.objectStore('restaurants');
+        store.put(temp);
+        return tx.complete;
+      });
+     })
      .catch(error => console.log(`Error: ${error}`));
 
   }
-  // const currentMessage = buttonElement.innerHTML;
   buttonElement.innerHTML =  buttonMessage ;
-  console.log('button clicked');
-  console.log('ARIA Pressed Value',buttonState);
-  // put PUT request using FETCH
+  // console.log('button clicked');
+  // console.log('ARIA Pressed Value',buttonState);
 }
 
 
@@ -443,10 +467,12 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
     favoriteStatus = 'Not a Favorite';
     const ICON_NOT_FAVORITE = '&#x2661';
     self.restaurant.favIcon = ICON_NOT_FAVORITE;
+
   } else {
     favoriteStatus = 'Is a Favorite';
     const ICON_FAVORITE = '&#x1F9E1';
     self.restaurant.favIcon = ICON_FAVORITE;
+    BUTTON.setAttribute('favorite-toggle',true);
   }
 
   const SPACER = ' ';

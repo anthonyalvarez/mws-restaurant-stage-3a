@@ -66,10 +66,12 @@ static idbFetchRestaurants(){
     var tx = db.transaction(['restaurants'], 'readonly');
     var store = tx.objectStore('restaurants');
     var dataSet = store.getAll();
-    console.trace('idbFetchRestaurants  = ', store.getAll());
+    return dataSet;
+    // console.trace('idbFetchRestaurants  = ', store.getAll());
   })
   .then((response)=> {
-    if (typeof response === 'undefined' || response.length === 0 ) {
+    console.log('idbFetchRestaurants response=', response);
+    if ((typeof response === 'undefined' || response.length === 0)  && (navigator.onLine)) {
       // console.log('store.getAll()=', response);
       // throw new Error('L.107 response.length === 0');
       return fetch(DBHelper.REMOTE_DATABASE_URL)
