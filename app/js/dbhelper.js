@@ -3,7 +3,7 @@
  * Common database helper functions.
  */
 
-const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
+const dbPromise = idb.open('udacity-mws', 2, upgradeDB => {
   switch (upgradeDB.oldVersion) {
     case 0:
 
@@ -14,8 +14,9 @@ const dbPromise = idb.open('udacity-mws', 1, upgradeDB => {
     const reviewStorage = upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
     reviewStorage.createIndex('restaurant_id', 'restaurant_id', {unique:false} );
 
+    case 1:
     console.log('Case 3: Creating Offline reviews IDB');
-    upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id'});
+    upgradeDB.createObjectStore('offline-reviews', {keyPath: 'id', autoIncrement: true });
 
   }
 });
@@ -408,7 +409,7 @@ static getIdbRestaurantReviews(id) {
 static idbCheckReviewStatus(id) {
   const DEBUG_MODE = false;
   if (DEBUG_MODE) {
-    console.log('getIdbRestaurantReviews param=: ', id);
+    console.log('idbCheckReviewStatus param=: ', id);
   }
   return dbPromise.then(db => {
     const storeIndex = db.transaction('reviews').objectStore('reviews').index('restaurant_id');
@@ -419,9 +420,59 @@ static idbCheckReviewStatus(id) {
       return response;
   })
   .catch(err => {
-
+    throw new Error('idbCheckReviewStatus= ' + err.statusText + ' ' + err );
   });
 }
+
+static idbReadAllOfflineReviews () {
+   dbPromise.then(db => {
+    return db.transaction(['offline-reviews'], 'readonly').objectStore('offline-reviews').getAll();
+  })
+  .then(allObjs => {
+    window.userComments = allObjs;
+    console.log('idbReadAllOfflineReviews()= ', window.userComments);
+    return (allObjs);
+  })
+  .catch(err =>{
+    throw new Error('idbReadAllOfflineReviews= ' + err.statusText + ' ' + err );
+  });
+
+}
+
+static idbClearOfflineReviews() {
+  return dbPromise.then(db => {
+    const tx = db.transaction('offline-reviews', 'readwrite');
+    tx.objectStore('offline-reviews').clear();
+    console.log('idbClearOfflineReviews() clears database ');
+    return tx.complete;
+  });
+
+}
+
+static idbPostReviewsToApiServer(){
+  // window.userComments
+  // fetch(url, options)
+  // then console.log
+  // catch
+}
+
+/*
+IDB Code snippet
+dbPromise.then(db => {
+  return db.transaction('objs')
+    .objectStore('objs').getAll();
+}).then(allObjs => console.log(allObjs));
+
+
+clear() {
+    return dbPromise.then(db => {
+      const tx = db.transaction('keyval', 'readwrite');
+      tx.objectStore('keyval').clear();
+      return tx.complete;
+    });
+  },
+
+*/
 
 // end class DBHelper
 }
