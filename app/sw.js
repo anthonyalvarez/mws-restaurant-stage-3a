@@ -146,3 +146,71 @@ function update(request) {
   });
 }
 
+self.importScripts('/js/idb.js');
+self.importScripts('/js/dbhelper.js');
+self.addEventListener('sync', function(event) {
+  console.log('[Service Worker] sync - Back online now.');
+  console.log('[Service Worker] sync - event.tag=', event.tag);
+  if (event.tag == 'my-sync') {
+    console.log('sync event being processed now');
+
+    // event.waitUntil(doSomeStuff());
+    event.waitUntil(
+      // get data from offline-reviews
+      DBHelper.idbReadAllOfflineReviews()
+      .then(dataSet => {
+        console.log('idbReadAllOfflineReviews=',dataSet);
+        return dataSet;
+      })
+      .catch(err => {
+        console.log('addEventListener sync', err);
+        throw new Error('sw.js sync' + err.statusText);
+      })
+    );
+    // delete idbOfflineReviews()
+  }
+
+});  // End addEventListener Sync
+
+/*       DBHelper.dbPromise.then(db => {
+        const TX = db.transaction('offline-reviews', 'readonly');
+        const STORE = TX.objectStore('offline-reviews');
+        return STORE.getAll();
+      })
+ */      // post to API server
+/*       .then((newReview)=>{
+        const OPTIONS = {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(newReview)
+        };
+        const REVIEW_ENDPOINT = DBHelper.REMOTE_REVIEWS_DB_URL;
+        const NEW_REVIEW_REQUEST = new Request(REVIEW_ENDPOINT, OPTIONS);
+        fetch(NEW_REVIEW_REQUEST)
+          .then(response => response.json())
+          .then(res => console.log(res))
+          .catch((err)=> {
+            console.log('addEventListener sync Fetch', err);
+            throw new Error('sw.js sync Fetch' + err.statusText);
+          });
+      })
+ */      // delete offline reviews data
+      // .then(idbClearOfflineReviews())
+/*       .then(()=>{
+        return dbPromise.then(db => {
+          const TX = db.transaction('offline-reviews', 'readwrite');
+          const STORE = TX.objectStore('offline-reviews');
+          STORE.clear();
+          return TX.complete;
+        })
+      })
+ */     // .catch((err)=> {
+        // console.log('addEventListener sync', err);
+        // throw new Error('sw.js sync' + err.statusText);
+      // })
+
+    // );
+
+
+  // }
+
