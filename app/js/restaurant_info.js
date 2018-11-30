@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   // if (DEBUG_MODE){
     // console.log('DOM fully loaded and parsed');
   // }
+    onlineOfflineIndicator();
     initMap();
     // console.log('DOMContentLoaded, restaurant= ', restaurant);
 
@@ -395,6 +396,7 @@ function toggleFavoriteStatus () {
         const tx = db.transaction(['restaurants'], 'readwrite');
         const store = tx.objectStore('restaurants');
         store.put(temp);
+        // why does return no go with store.put(temp)?
         return tx.complete;
       });
      })
@@ -413,16 +415,7 @@ function toggleFavoriteStatus () {
  * @returns {null} updates DOM
  */
 userInputDataReviewForm = () => {
-   DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-    self.restaurant = restaurant;
-    if (!restaurant) {
-      console.error(error);
-      return;
-    }
-    fillRestaurantHTML();
-    callback(null, restaurant);
-  });
-
+  event.preventDefault();
   console.log('Funtion: userInputDataReviewForm', restaurant);
   const FORM = document.getElementById('userInputForm');
   const RESTAURANT_ID = self.restaurant.id;
@@ -430,23 +423,58 @@ userInputDataReviewForm = () => {
   const INPUT_RATING = document.getElementById('rating');
   const INPUT_COMMENT = document.getElementById('comments');
 
-  FORM.addEventListener('submit',(e) => {
-    // e.preventDefault;
-    const DATA_NAME = INPUT_NAME.value;
-    const DATA_RATING = parseInt(INPUT_RATING.value);
-    const DATA_COMMENT = INPUT_COMMENT.value;
-    const DATA_CURRENT_TIME = Math.round(new Date().getTime()/1000.0);
+  const DATA_NAME = INPUT_NAME.value;
+  const DATA_RATING = parseInt(INPUT_RATING.value);
+  const DATA_COMMENT = INPUT_COMMENT.value;
+  const DATA_CURRENT_TIME = new Date().toISOString();
 
-    let  formdata = new FormData();
-    formdata.append('restaurant_id', RESTAURANT_ID);
-    formdata.append('name', DATA_NAME);
-    formdata.append('rating', DATA_RATING);
-    formdata.append('comments', DATA_COMMENT);
-    formdata.append('createdAt', DATA_CURRENT_TIME);
-    formdata.append('updatedAt', DATA_CURRENT_TIME);
+
+  const USER_GENERATED_CONTENT = {
+    restaurant_id: RESTAURANT_ID,
+    name: DATA_NAME,
+    rating: DATA_RATING,
+    comments: DATA_COMMENT,
+    createdAt: DATA_CURRENT_TIME,
+    updatedAt: DATA_CURRENT_TIME
+  }
+
+  document.getElementById('userInputForm').reset();
+
+  // credit: Introducing Background Sync by By Jake Archibald
+  // https://developers.google.com/web/updates/2015/12/background-sync
+
+  // navigator.serviceWorker.ready.then(function(swRegistration) {
+    // swRegistration.sync.register('myFirstSync');
+  // });
+  navigator.serviceWorker.ready.then(reg => reg.sync.register('my-sync'));
+
+  console.log('userInputDataReviewForm=', USER_GENERATED_CONTENT);
+  // console.log('userComments =', userComments);
+
+  // add new comments to page
+  const CONTAINER = document.getElementById('reviews-container');
+  const UL = document.getElementById('reviews-list');
+  // UL.insertBefore(createReviewHTML(USER_GENERATED_CONTENT), UL.firstChild);
+  UL.appendChild(createReviewHTML(USER_GENERATED_CONTENT), UL.firstChild);
+
+  CONTAINER.appendChild(UL);
+
+  dbPromise.then(db => {
+    const TX = db.transaction('offline-reviews', 'readwrite');
+    const STORE = TX.objectStore('offline-reviews');
+    return STORE.put(USER_GENERATED_CONTENT);
   })
-}
+  .catch(err => console.log(`Error: ${err}`));
 
+} // end userInputDataReviewForm()
+
+/**
+ * @description Creates Favorite Toggle HTML
+ * @param {object} Restaurants
+ * @returns {null} Changes DOM
+ * @summary
+ *
+ */
 createFavoriteToggleHTML = (restaurant = self.restaurant) => {
 
   // console.log('Inside createFavoriteToggleHTML');
@@ -481,6 +509,14 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
   return;
 }
 
+/**
+ *
+ * @description Sets Review Form's hidden field with HTML restaurant ID
+ * @param {object} Restaurant
+ * @returns {null} Updates DOM
+ * @summary
+ *
+ */
 createReviewFormHTML = (restaurant = self.restaurant) => {
 
   console.log('Inside createReviewFormHTML()');
@@ -488,4 +524,35 @@ createReviewFormHTML = (restaurant = self.restaurant) => {
   FORM.value = parseInt(self.restaurant.id);
 
   return;
+}
+
+/**
+ * @description Indicates network status visually.
+ * Red color signifies offline mode.
+ *
+ * @param {null} none
+ * @returns {null} Updates a DOM nodes CSS background color value.
+ * @summary Used for testing offline review submition.
+ *
+ */
+
+function onlineOfflineIndicator() {
+
+  const ooUpdate = document.getElementById('breadcrumb');
+  const initalBackgroundColor = 'white';
+
+  if (navigator.onLine) {
+    ooUpdate.style.backgroundColor = initalBackgroundColor;
+  };
+
+  window.addEventListener('online', function() {
+    ooUpdate.style.backgroundColor = initalBackgroundColor;
+    console.log('onlineOfflineIndicator()= ONLINE mode now');
+  });
+
+  window.addEventListener('offline', function() {
+    ooUpdate.style.backgroundColor = 'red';
+    console.log('onlineOfflineIndicator()= OFFLINE mode now');
+  });
+
 }
