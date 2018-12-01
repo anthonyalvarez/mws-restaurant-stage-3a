@@ -148,36 +148,43 @@ function update(request) {
 
 self.importScripts('/js/idb.js');
 self.importScripts('/js/dbhelper.js');
+
+  // credit: Introducing Background Sync by By Jake Archibald
+  // https://developers.google.com/web/updates/2015/12/background-sync
+
 self.addEventListener('sync', function(event) {
   console.log('[Service Worker] sync - Back online now.');
   console.log('[Service Worker] sync - event.tag=', event.tag);
   if (event.tag == 'my-sync') {
     console.log('sync event being processed now');
 
-    // event.waitUntil(doSomeStuff());
     event.waitUntil(
-      // get data from offline-reviews
-      DBHelper.idbReadAllOfflineReviews()
-      .then(dataSet => {
-        console.log('idbReadAllOfflineReviews=',dataSet);
-        return dataSet;
-      })
+
+      DBHelper.IDB.then(db => {
+          const OFFLINE_REVIEW_STORE =
+            db.transaction(['offline-reviews'], 'readonly')
+            .objectStore('offline-reviews');
+            console.log('OFFLINE_REVIEW_STORE=', OFFLINE_REVIEW_STORE.getAll());
+          return OFFLINE_REVIEW_STORE.getAll();
+        })
+        .then(allObjs => {
+          console.log('allObjs=', allObjs);
+          fetch('http://localhost:1337/reviews/', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(allObjs)
+                });
+        })
       .catch(err => {
         console.log('addEventListener sync', err);
         throw new Error('sw.js sync' + err.statusText);
       })
-    );
-    // delete idbOfflineReviews()
+    ); // end  - waitUntil
+    DBHelper.idbClearOfflineReviews();
   }
 
 });  // End addEventListener Sync
 
-/*       DBHelper.dbPromise.then(db => {
-        const TX = db.transaction('offline-reviews', 'readonly');
-        const STORE = TX.objectStore('offline-reviews');
-        return STORE.getAll();
-      })
- */      // post to API server
 /*       .then((newReview)=>{
         const OPTIONS = {
           method: 'POST',
@@ -195,22 +202,4 @@ self.addEventListener('sync', function(event) {
           });
       })
  */      // delete offline reviews data
-      // .then(idbClearOfflineReviews())
-/*       .then(()=>{
-        return dbPromise.then(db => {
-          const TX = db.transaction('offline-reviews', 'readwrite');
-          const STORE = TX.objectStore('offline-reviews');
-          STORE.clear();
-          return TX.complete;
-        })
-      })
- */     // .catch((err)=> {
-        // console.log('addEventListener sync', err);
-        // throw new Error('sw.js sync' + err.statusText);
-      // })
-
-    // );
-
-
-  // }
 
