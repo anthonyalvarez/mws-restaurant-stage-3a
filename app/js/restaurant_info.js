@@ -7,15 +7,10 @@ var newMap;
  * @param {string} DOM mutation event - event type to listen for
  * @param {string} listener - The object which receives a notification
  */
+
 document.addEventListener('DOMContentLoaded', (event) => {
-  // const DEBUG_MODE = false;
-  // if (DEBUG_MODE){
-    // console.log('DOM fully loaded and parsed');
-  // }
     onlineOfflineIndicator();
     initMap();
-    // console.log('DOMContentLoaded, restaurant= ', restaurant);
-
 });
 
 /**
@@ -23,6 +18,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * @param {null}
  * @returns {object} Restaurant data and map
  */
+
 initMap = () => {
     if (!self.restaurant) {
       fetchRestaurantFromURL(restaurant)
@@ -49,9 +45,7 @@ initMap = () => {
         // throw new Error('initMap() error ' + err.statusText);
       // });
     } else {
-      // console.log('self.restaurant=', self.restaurant);
-      // console.log('Typeof=', (typeof self.restaurant));
-      // throw new Error('initMap() error ' + err.statusText);
+
     }
   };
 
@@ -60,6 +54,7 @@ initMap = () => {
  * @param {null}
  * @returns {object} a Restaurant
  */
+
 fetchRestaurantFromURL = () => {
   // console.log('entering fetchRestaurantFromURL, self.restaurant= ', self.restaurant);
 
@@ -96,6 +91,7 @@ fetchRestaurantFromURL = () => {
  * @returns {object} image - from restaurant
  * @returns {object} cuisine - from restaurant.cuisine_type
  */
+
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   // console.log('Entering fillRestaurantHTML function, restaurant=', restaurant);
   const name = document.getElementById('restaurant-name');
@@ -109,14 +105,11 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img';
-  // image.src = DBHelper.imageUrlForRestaurant(restaurant);
   const FILENAME = DBHelper.imageUrlForRestaurant(restaurant);
-  // let fileName = FILENAME.slice (0, -4);
   let fileSmall = FILENAME + '-sm.jpg 270w';
   let fileMedium = FILENAME + '-med.jpg 540w, ';
   let fileLarge = FILENAME + '.jpg' ;
   let sourceSet = fileLarge + ' 800w, ' + fileMedium + fileSmall;
-  // console.log('srcset' + sourceSet);
 
   image.src = FILENAME + '-sm.jpg';
   image.setAttribute('srcset', sourceSet);
@@ -130,7 +123,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
       fillRestaurantHoursHTML();
   }
 
-  if (!self.restaurant.review) {
+  if (!self.restaurant.reviews) {
     DBHelper.addReviewsIdb(self.restaurant.id)
     // DBHelper.getIdbRestaurantReviews(self.restaurant.id)
     .then((response) =>{
@@ -204,8 +197,11 @@ console.log ('L135, idbReviews = ', idbReviews);
  * @returns {string} time - print on restaurant details page.
  * @returns {string} hours - print on restaurant details page.
  */
+
 fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
+
   const hours = document.getElementById('restaurant-hours');
+
   for (let key in operatingHours) {
     const row = document.createElement('tr');
 
@@ -219,6 +215,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
     hours.appendChild(row);
   }
+
 };
 
 /**
@@ -227,10 +224,8 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * @returns {object} title - prints out using createReviewHTML or prints "no reviews"
  * @returns {object} noReviews - prints "no reviews"
  */
+
  fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-/*    console.log('entering fillReviewsHTML reviews = , ',reviews);
-   console.log('entering fillReviewsHTML self.restaurant.reviews = , ',self.restaurant.reviews);
- */
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -242,7 +237,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
     container.appendChild(noReviews);
     return;
   }
+
   const ul = document.getElementById('reviews-list');
+
     reviews.forEach(review => {
       ul.appendChild(createReviewHTML(review));
   });
@@ -273,7 +270,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * @returns {object} rating -print on restaurant details page
  * @returns {object} comments -print on restaurant details page
  */
+
 createReviewHTML = (review) => {
+
   const li = document.createElement('li');
   const name = document.createElement('p');
   name.innerHTML = review.name;
@@ -293,6 +292,7 @@ createReviewHTML = (review) => {
   li.appendChild(comments);
 
   return li;
+
 };
 
 /**
@@ -300,11 +300,14 @@ createReviewHTML = (review) => {
  * @param {object} restaurant - From restuarant.json data file
  * @returns {string} breadcrumb - Update Restaurant page DOM element from JSON data object
  */
+
 fillBreadcrumb = (restaurant = self.restaurant) => {
+
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
   breadcrumb.appendChild(li);
+
 };
 
 /**
@@ -313,7 +316,9 @@ fillBreadcrumb = (restaurant = self.restaurant) => {
  * @param {string} url - web address
  * @returns {string} results - Unencoded version of an encoded component of URI
  */
+
 getParameterByName = (name, url) => {
+
   if (!url)
     url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
@@ -324,6 +329,7 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
 };
 
 function toggleFavoriteStatus () {
@@ -351,12 +357,8 @@ function toggleFavoriteStatus () {
     const queryStr = 'is_favorite=' + IS_FAVORITE;
     const usp = new URLSearchParams(queryStr);
     const myName = usp.get('is_favorite');
-    // console.log('Query String parameter', myName);
-    // console.log('Query String values', usp.toString());
     const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
-    // console.log('Endpoint URL', endpoint);
     const requestFavoriteTrue = new Request(endpoint, options);
-    // console.log('requestFavoriteTrue =', requestFavoriteTrue);
      fetch(requestFavoriteTrue)
       .then(response => response.json())
       .then(res => console.log(res))
@@ -380,12 +382,8 @@ function toggleFavoriteStatus () {
     const queryStrFalse = 'is_favorite=false';
     const usp = new URLSearchParams(queryStrFalse);
     const myName = usp.get('is_favorite');
-    // console.log('Query String parameter', myName);
-    // console.log('Query String values', usp.toString());
     const endpoint = DBHelper.REMOTE_DATABASE_URL + '/' + RESTAURANT_ID + '/' +'?' + usp.toString();
-    // console.log('Endpoint URL', endpoint);
     const requestFavoriteFalse = new Request(endpoint, options);
-    // console.log('requestFavoriteFalse =', requestFavoriteFalse);
     fetch(requestFavoriteFalse)
      .then(response => response.json())
      .then(res => console.log(res))
@@ -396,16 +394,15 @@ function toggleFavoriteStatus () {
         const tx = db.transaction(['restaurants'], 'readwrite');
         const store = tx.objectStore('restaurants');
         store.put(temp);
-        // why does return no go with store.put(temp)?
         return tx.complete;
       });
      })
      .catch(error => console.log(`Error: ${error}`));
 
   }
-  buttonElement.innerHTML =  buttonMessage ;
-  // console.log('button clicked');
-  // console.log('ARIA Pressed Value',buttonState);
+
+  buttonElement.innerHTML =  buttonMessage;
+
 }
 
 
@@ -414,9 +411,12 @@ function toggleFavoriteStatus () {
  * @param {null} requires self.restauramt
  * @returns {null} updates DOM
  */
+
 userInputDataReviewForm = () => {
+
   event.preventDefault();
   console.log('Funtion: userInputDataReviewForm', restaurant);
+
   const FORM = document.getElementById('userInputForm');
   const RESTAURANT_ID = self.restaurant.id;
   const INPUT_NAME = document.getElementById('name');
@@ -443,18 +443,13 @@ userInputDataReviewForm = () => {
   // credit: Introducing Background Sync by By Jake Archibald
   // https://developers.google.com/web/updates/2015/12/background-sync
 
-  // navigator.serviceWorker.ready.then(function(swRegistration) {
-    // swRegistration.sync.register('myFirstSync');
-  // });
   navigator.serviceWorker.ready.then(reg => reg.sync.register('my-sync'));
 
   console.log('userInputDataReviewForm=', USER_GENERATED_CONTENT);
-  // console.log('userComments =', userComments);
 
   // add new comments to page
   const CONTAINER = document.getElementById('reviews-container');
   const UL = document.getElementById('reviews-list');
-  // UL.insertBefore(createReviewHTML(USER_GENERATED_CONTENT), UL.firstChild);
   UL.appendChild(createReviewHTML(USER_GENERATED_CONTENT), UL.firstChild);
 
   CONTAINER.appendChild(UL);
@@ -475,6 +470,7 @@ userInputDataReviewForm = () => {
  * @summary
  *
  */
+
 createFavoriteToggleHTML = (restaurant = self.restaurant) => {
 
   // console.log('Inside createFavoriteToggleHTML');
@@ -492,21 +488,25 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
   // console.log('createFavoriteToggleHTML(): typeof self.restaurant.is_favorite= ',typeof self.restaurant.is_favorite);
 
   if (self.restaurant.is_favorite == false || self.restaurant.is_favorite == 'false' || self.restaurant.is_favorite == undefined ) {
+
     favoriteStatus = 'Not a Favorite';
     const ICON_NOT_FAVORITE = '&#x2661';
     self.restaurant.favIcon = ICON_NOT_FAVORITE;
 
   } else {
+
     favoriteStatus = 'Is a Favorite';
     const ICON_FAVORITE = '&#x1F9E1';
     self.restaurant.favIcon = ICON_FAVORITE;
     BUTTON.setAttribute('favorite-toggle',true);
+
   }
 
   const SPACER = ' ';
   const FAVORITE_MESSAGE = self.restaurant.favIcon + SPACER +  favoriteStatus;
   BUTTON.innerHTML = FAVORITE_MESSAGE;
   return;
+
 }
 
 /**
@@ -517,6 +517,7 @@ createFavoriteToggleHTML = (restaurant = self.restaurant) => {
  * @summary
  *
  */
+
 createReviewFormHTML = (restaurant = self.restaurant) => {
 
   console.log('Inside createReviewFormHTML()');
@@ -524,6 +525,7 @@ createReviewFormHTML = (restaurant = self.restaurant) => {
   FORM.value = parseInt(self.restaurant.id);
 
   return;
+
 }
 
 /**
