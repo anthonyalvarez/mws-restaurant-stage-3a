@@ -168,12 +168,26 @@ self.addEventListener('sync', function(event) {
           return OFFLINE_REVIEW_STORE.getAll();
         })
         .then(allObjs => {
-          console.log('allObjs=', allObjs);
+          const newReview = allObjs;
+          // console.log('allObjs=', allObjs);
           fetch('http://localhost:1337/reviews/', {
                     method: 'POST',
                     headers: { 'content-type': 'application/json' },
                     body: JSON.stringify(allObjs)
                 });
+          return newReview;
+        })
+        // add allObjs to IDB reviews table
+        .then(allObjs =>{
+          console.log('Adding allObjs to IDB Reviews =', allObjs);
+          DBHelper.IDB.then(db => {
+            const REVIEW_STORE =
+              db.transaction(['reviews'], 'readwrite')
+              .objectStore('reviews');
+              const TRANSACTION =db.transaction(['reviews'], 'readwrite');
+              REVIEW_STORE.add(allObjs[0]);
+              return TRANSACTION.complete;
+          })
         })
       .catch(err => {
         console.log('addEventListener sync', err);
@@ -201,5 +215,18 @@ self.addEventListener('sync', function(event) {
             throw new Error('sw.js sync Fetch' + err.statusText);
           });
       })
- */      // delete offline reviews data
 
+      Sample code for IDB add operation
+
+
+      dbPromise.then(db => {
+        const tx = db.transaction('objs', 'readwrite');
+        tx.objectStore('objs').put({
+          id: 123456,
+          data: {foo: "bar"}
+        });
+        return tx.complete;
+      });
+
+
+ */      // delete offline reviews data
