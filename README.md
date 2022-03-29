@@ -31,45 +31,42 @@
 
 ## Table of Contents
 
-1. [Specification](#Specification)
+1. [About](#About)
 1. [Requirements](#Requirements)
 1. [Technology](#Technology)
 1. [Getting Started](#Getting-Started)
 1. [Versioning](#Versioning)
 1. [License](#license)
 1. [Contact](#Contact)
+2. [Screenshots](#Screenshots)
 
-## Specification
+## About
 
-You will be provided code for a Node development server and a README for getting the server up and running locally on your computer. The README will also contain the API you will need to make JSON requests to the server. Once you have the server up, you will begin the work of improving your Stage One project code.
+Uses the fetch() API to make requests to the remote database server to populate the content of this Restaurant Reviews app.
 
-The core functionality of the application will not change for this stage. Only the source of the data will change. You will use the fetch() API to make requests to the server to populate the content of your Restaurant Reviews app.
-
-For the Restaurant Reviews projects, you will incrementally convert a static webpage to a mobile-ready web application. In Stage Two, you will take the responsive, accessible design you built in Stage One and connect it to an external JSON REST API server.
+For the Restaurant Reviews, it is a a mobile-ready web application featuring a responsive, accessible design connected to an external JSON REST API server.
 
 1. Use asynchronous JavaScript to request JSON data from the server.
 
 2. Store data received from the server in an offline database using IndexedDB, which will create an app shell architecture.
 
-3. Finally, you’ll work to optimize your site to meet performance benchmarks, which you’ll test using Lighthouse.
+3. Finally, the site has been optimized to meet performance benchmarks, using Lighthouse testing tool.
 
 ***[Back to top](#table-of-contents)***
 
 ## Requirements
 
-Use server data instead of local memory In the first version of the application, all of the data for the restaurants was stored in the local application. You will need to change this behavior so that you are pulling all of your data from the server instead, and using the response data to generate the restaurant information on the main page and the detail page.
+Uses remote server API data instead of local memory. Instead of all the restaurant data stored in the local application web server, the site is now pulling all of the data from a remote database server instead, and using the response data to generate the restaurant information on the home page and the detail page of the web app. 
 
-Use IndexedDB to cache JSON responses In order to maintain offline use with the development server you will need to update the service worker to store the JSON received by your requests using the IndexedDB API. As with Stage One, any page that has been visited by the user should be available offline, with data pulled from the shell database.
+Use of IndexedDB to cache JSON responses. For offline use, the JavaScript service worker stores the JSON received by get requests using the IndexedDB API. All web pages that has been visited by the user are   available for offline browsing, since the data is pulled from the users local web-based IndexedDB database instead of over the network. 
 
-Meet the minimum performance requirements Once you have your app working with the server and working in offline mode, you’ll need to measure your site performance using Lighthouse.
+The website meets minimum performance requirements as an offline app. This app has been verified by Google Lighthouse performance metrics in three areas.
 
-Lighthouse measures performance in four areas, but your review will focus on three:
+1. Progressive Web App score is 90 or better.
+2. Performance score should is 70 or better.
+3. Accessibility score should is 90 or better.
 
-1. Progressive Web App score should be at 90 or better.
-1. Performance score should be at 70 or better.
-1. Accessibility score should be at 90 or better.
-
-You can audit your site's performance with Lighthouse by using the Audit tab of Chrome Dev Tools.
+This site's performance can be verified with Google Lighthouse by using the Audit tab of Chrome Dev Tools.
 
 ### Technology
 
@@ -234,14 +231,14 @@ submitting an issue to [GitHub](https://github.com/anthonyalvarez/mws-restaurant
 
 **[Back to top](#table-of-contents)**
 
+## Screenshots
+
 For screenshots of some of the applciation features, refer the section below.
 
-## Lighthouse Audit Score
-
-### Audit was carried out in Chrome's incognito mode under localhost without HTTPS configuration.
+### Lighthouse Audit Score was carried out in Chrome's incognito mode under localhost without HTTPS configuration.
 ![Audit](https://github.com/anurag-majumdar/mws-restaurant-stage-3/raw/master/screenshots/lighthouse-audit.png)
 
-## Screenshots
+
 
 The screenshots give a brief overview of the application features.
 
