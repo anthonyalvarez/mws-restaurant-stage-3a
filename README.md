@@ -1,10 +1,10 @@
 # New York City Restaurant Reviews PWA Web App
 
-![Desktop View](https://github.com/anurag-majumdar/mws-restaurant-stage-3/raw/master/screenshots/desktop-view-2.png)
+![Desktop View](https://github.com/anurag-majumdar/mws-restaurant-stage-3/raw/master/screenshots/desktop-view.png)
 
 ## Features
 
-* The application uses **Responsive Web Design** with **Flexbox** mostly, **CSS Grid** sparingly and **Media Queries** heavily. - Offline first, Progressive Web Application (PWA)
+* The application uses **Responsive Web Design** with **Flexbox** mostly, **CSS Grid** sparingly and **Media Queries** heavily. 
 
 * Responsive design is carried out keeping content in mind. Breakpoints are set according to content look as per screen starting from the smallest 300px device-width.
 
@@ -20,7 +20,7 @@
 
 * **IndexedDB** is used with the help of Jake Archibald's **idb** library. Kudos to Jake!
 
-* Review Form submission and Favourite a restaurant features are built with custom **Background sync**. Even if user enters data while offline, The data is stored into IndexedDB while offline and then it goes to server. Online and Offline events were tracked carefully!
+* The "Review Form submission" and "Favourite a restaurant" features are built with custom **Background sync**. Even if user enters data while offline, The data is stored into IndexedDB while offline and then it goes to server. Online and Offline events were tracked carefully! **Progressive Web Application (PWA)** 
 
 * A generic Toast class was created from scratch alongwith css for informing users when they are online or offline. If user comes back online from offline state, the **background sync** for the specific tasks which user did are run and a toast message is shown in the app when the tasks finish syncing with the server.
 
