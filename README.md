@@ -218,7 +218,7 @@ For list of the changes and updates, see the [commits on this repository](https:
 
 ## License
 
-Open source
+[View license](LICENSE)
 
 
 ## Contact
@@ -233,14 +233,10 @@ submitting an issue to [GitHub](https://github.com/anthonyalvarez/mws-restaurant
 
 ## Screenshots
 
-For screenshots of some of the applciation features, refer the section below.
+The screenshots below give a brief overview of [the application features](#features).
 
 ### Lighthouse Audit Score was carried out in Chrome's incognito mode under localhost without HTTPS configuration.
 ![Audit](https://github.com/anurag-majumdar/mws-restaurant-stage-3/raw/master/screenshots/lighthouse-audit.png)
-
-
-
-The screenshots give a brief overview of the application features.
 
 ### iPhone 5SE View (Restaurants)
 ![iPhone 5SE View](https://github.com/anurag-majumdar/mws-restaurant-stage-3/raw/master/screenshots/iPhone-view.png)
